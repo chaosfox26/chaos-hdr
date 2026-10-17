@@ -29,7 +29,15 @@ on different hardware, displays, drivers or KWin versions.
 
 ## One-command installation
 
-Once you have a release installer, run this from its directory:
+The primary installation workflow is to copy one command from the GitHub front
+page, paste it into a terminal and press Enter. It downloads the release and runs
+setup automatically. There is no manual binary download, executable-permission
+step or separate setup command. The GitHub-hosted entry point verifies the
+downloaded source installer's SHA-256 before running it, and keeps temporary
+downloads inside the consolidated project folder.
+
+A hosted command is not available until publication. For an already downloaded
+source installer, the alternative local command is:
 
 ```sh
 bash Chaos-HDR-CachyOS.run

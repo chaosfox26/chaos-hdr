@@ -12,12 +12,12 @@ Chaos HDR is my implementation of the workflow I wanted: launch an application n
 
 ## Start here
 
-- **Install a downloaded release:** `bash Chaos-HDR-CachyOS.run`
+- **Install:** copy the one-line command from this page into a terminal and press Enter. The verified GitHub download URL is pending publication; no working hosted command is available yet.
 - **Open controls:** Alt+Z → choose a window → Allow application → Enable Chaos HDR.
 - **Uninstall:** `~/.local/bin/chaos-hdr-uninstall`
 - **Delete everything as well:** `~/.local/bin/chaos-hdr-uninstall --purge` — permanently deletes the complete project and saved settings.
 
-The installer handles dependencies, the native build and login startup on the current CachyOS/Arch KDE Wayland target. A short download-and-install command will be added when its real release URL is verified. See [installation and removal](docs/installation.md) for requirements and details.
+The public command downloads and runs setup directly from GitHub, then handles dependencies, the native build and login startup on the current CachyOS/Arch KDE Wayland target. Users do not need to save an installer manually, change executable permissions or run extra setup commands. See [installation and removal](docs/installation.md) for requirements and details.
 
 ## What it does
 

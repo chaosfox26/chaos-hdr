@@ -31,6 +31,15 @@ The fixture uses an isolated compositor and copied settings. Build-mode changes 
 
 Run `.venv/bin/python package_installer.py` for the non-personal source installer. Only explicitly allowlisted files are included; update that list when adding public documentation or source. `--personal` is private backup packaging, not the public release. Never publish the entire development folder.
 
+For publication, pass `--installer-url` with the exact versioned HTTPS GitHub
+release URL for `Chaos-HDR-CachyOS.run`. Packaging also generates
+`output/installers/install.sh`, containing that URL and the installer's SHA-256.
+Publish both assets in the same release, then verify the hosted entry point
+before adding its one-line download-and-run command to the front page. The
+launcher handles the download automatically; recipients never need to make the
+source installer executable. A checksum binds the payload to the launcher;
+it is not an independent signature if the publication account is compromised.
+
 Check payload integrity/extraction, preserved profiles, uninstall behavior on fixtures, local links, privacy and notices. Do not test purge on the development project. Use a public alias in commit metadata and keep personal identifiers out of source/history.
 
 ## Community reports and changes

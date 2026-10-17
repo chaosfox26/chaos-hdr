@@ -4,7 +4,9 @@ import hashlib
 import io
 import re
 import json
+import shlex
 import tarfile
+from urllib.parse import urlsplit
 from project import ROOT
 
 HEADER='''#!/usr/bin/env bash
@@ -48,7 +50,7 @@ SOURCE_FILES = (
     '.gitignore','AGENTS.md','CMakeLists.txt','README.md','Chaos HDR development.md','THIRD_PARTY_NOTICES.rst',
     'docs/installation.md','docs/user-guide.md','docs/architecture.md','docs/compatibility.md',
     'docs/performance.md','docs/privacy.md','docs/troubleshooting.md','docs/contributing.md','docs/credits.md',
-    'bootstrap.sh','uninstall.sh','desktop.py','desktop_probe.py','displays.py','install.py',
+    'bootstrap.sh','uninstall.sh','github-install.sh.in','desktop.py','desktop_probe.py','displays.py','install.py',
     'package_installer.py','prepare_desktop.py','project.py','sdk.py','test_desktop_watch.py','profile.example.json',
     'native/panel.cpp','native/profiles.hpp','native/test_profiles.cpp','native/vulkan_hdr.cpp','native/vulkan_hdr.hpp',
     'native/desktop/CMakeLists.txt','native/desktop/bootstrap.cpp','native/desktop/effect.cpp',
@@ -73,7 +75,17 @@ def privacy_check(files):
             raise RuntimeError('Public privacy check rejected an email address in '+name)
 
 
-def build(personal=False):
+def release_url(value):
+    parsed=urlsplit(value)
+    if parsed.scheme!='https' or parsed.netloc!='github.com' or parsed.query or parsed.fragment or not re.fullmatch(r'/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/releases/download/[^/]+/Chaos-HDR-CachyOS\.run',parsed.path):
+        raise argparse.ArgumentTypeError('Use the exact HTTPS GitHub release URL for Chaos-HDR-CachyOS.run.')
+    return value
+
+
+def build(personal=False, installer_url=None):
+    if installer_url:
+        release_url(installer_url)
+        if personal:raise ValueError('Personal backups cannot generate a public GitHub installer.')
     files={name:(ROOT/name).read_bytes() for name in SOURCE_FILES}
     for name in ('LICENSE','LICENSE.txt','COPYING','NOTICE'):
         if (ROOT/name).is_file():files[name]=(ROOT/name).read_bytes()
@@ -98,6 +110,9 @@ def build(personal=False):
     script=folder/(name+'.run');script.write_bytes(HEADER.replace('PAYLOAD_SHA256',digest).encode()+data);script.chmod(0o700 if personal else 0o755)
     source=folder/(name+'-source.tar.gz');source.write_bytes(data);source.chmod(0o600 if personal else 0o644)
     (folder/(name+'.sha256')).write_text(hashlib.sha256(script.read_bytes()).hexdigest()+'  '+script.name+'\n')
+    if installer_url:
+        launcher=(ROOT/'github-install.sh.in').read_text().replace('@INSTALLER_URL@',shlex.quote(installer_url)).replace('@INSTALLER_SHA256@',hashlib.sha256(script.read_bytes()).hexdigest())
+        (folder/'install.sh').write_text(launcher)
     print(json.dumps({'installer':str(script),'bytes':script.stat().st_size,'personal_profiles':personal}))
     return script
 
@@ -106,4 +121,7 @@ if __name__=='__main__':
     choice=parser.add_mutually_exclusive_group()
     choice.add_argument('--personal',action='store_true')
     choice.add_argument('--public',action='store_true')
-    build(parser.parse_args().personal)
+    parser.add_argument('--installer-url',type=release_url,help='Exact versioned GitHub release URL; also creates the download-and-install entry point.')
+    args=parser.parse_args()
+    if args.personal and args.installer_url:parser.error('--installer-url is only available for public packages')
+    build(args.personal,args.installer_url)

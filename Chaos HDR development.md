@@ -19,6 +19,24 @@ Explanatory comments relocated from first-party source. Original source location
 
 The native KWin direct-buffer path, NVIDIA TrueHDR/debanding, sharpening, synchronization, picture profiles, input handling and conditional watchdog behavior are unchanged by comment relocation. The default build selects production targets; developer fixtures are explicit. Historical routes are not part of the default build.
 
+## GitHub download entry point
+
+`github-install.sh.in` is a release template, not a ready-to-run hosted command.
+`package_installer.py --installer-url` binds it to the exact versioned GitHub
+release asset and the generated source installer's SHA-256. The resulting
+`output/installers/install.sh` is published with that asset. The front-page
+one-liner downloads and runs this launcher; no manual download or executable
+permission change is required. Setup still downloads external dependencies from
+their upstream providers rather than including them in the release.
+
+The launcher restricts downloads and redirects to HTTPS, checks the complete
+installer hash before execution, keeps staging under the canonical project's
+`output/scratch`, and cleans it on exit. Download errors and hash mismatches stop
+setup. `--extract-only` enables isolated verification without installing services.
+The checksum protects against mismatched or corrupted payloads; it is not a
+separate signing authority. A real hosted command and a fresh supported-system
+test are still required before claiming the one-line installation is ready.
+
 ## Relocated explanations
 
 ### CMakeLists.txt

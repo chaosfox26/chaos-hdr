@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+task_url=@INSTALLER_URL@
+task_sha=@INSTALLER_SHA256@
+task_mode=()
+if [[ "${1:-}" == --extract-only ]]; then task_mode=(--extract-only); shift; fi
+if [[ $# -ne 0 ]]; then echo 'Usage: install.sh [--extract-only]'; exit 1; fi
+for task_program in curl sha256sum mktemp bash; do
+    command -v "$task_program" >/dev/null || { echo "Required download tool unavailable: $task_program"; exit 1; }
+done
+task_root="$HOME/Documents/ChatGPT/CachyOS/RTX HDR experimental"
+mkdir -p "$task_root/output/scratch"
+task_stage=$(mktemp -d "$task_root/output/scratch/download.XXXXXX")
+trap 'rm -rf -- "$task_stage"' EXIT
+echo 'Downloading Chaos HDR from GitHub...'
+curl --fail --show-error --location --proto '=https' --proto-redir '=https' --tlsv1.2 --retry 2 --connect-timeout 20 --output "$task_stage/installer.run" "$task_url"
+task_actual=$(sha256sum "$task_stage/installer.run")
+if [[ "${task_actual%% *}" != "$task_sha" ]]; then
+    echo 'Chaos HDR download verification failed; setup was not started.'
+    exit 1
+fi
+bash "$task_stage/installer.run" "${task_mode[@]}" "$task_root"
