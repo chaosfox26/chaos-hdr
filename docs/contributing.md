@@ -2,7 +2,7 @@
 
 [Back to Chaos HDR](../README.md)
 
-Chaos HDR is being prepared for a public community source release. The original-source license and KWin/NGX linkage review remain unresolved; source visibility alone is not a license grant. Consult [third-party notices](../THIRD_PARTY_NOTICES.rst) before redistribution.
+Chaos HDR's original code and documentation are licensed under [GNU GPL version 2 only](../LICENSE) (`GPL-2.0-only`). Contributions must be compatible with that license, with provenance and any upstream notices preserved. Third-party components keep their own licenses. The KWin/NGX combined-binary compatibility question remains unresolved; consult [third-party notices](../THIRD_PARTY_NOTICES.rst) before redistribution. This repository's license does not grant rights to NVIDIA's proprietary components.
 
 ## Project layout and invariants
 

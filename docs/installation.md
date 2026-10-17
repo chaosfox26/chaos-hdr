@@ -12,6 +12,21 @@
 
 The installer does not replace the GPU driver. Other distributions, desktop environments and fresh-system combinations are not certified by the existing-machine checks.
 
+## Same implementation as the development installation
+
+The public installer builds the same production direct-buffer KWin effect used
+on the development CachyOS installation. It includes NVIDIA TrueHDR, debanding,
+the full sharpening range, Alt+Z application approval and controls, named picture
+profiles, event-driven startup and the active-target watchdog. It does not
+substitute a shader approximation, separate preview, capture fallback or
+game-injected version. NVIDIA's runtime and SDK downloads are pinned by the
+installer; native components are built against the recipient's installed KWin.
+
+Personal profiles, app approvals and development captures are not distributed.
+Recipients start with clean defaults and can save their own settings. The same
+implementation does not guarantee identical frame times or picture calibration
+on different hardware, displays, drivers or KWin versions.
+
 ## One-command installation
 
 Once you have a release installer, run this from its directory:

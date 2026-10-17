@@ -6,7 +6,9 @@ Experimental NVIDIA TrueHDR and sharpening for selected SDR application windows 
 
 Chaos HDR is my implementation of the workflow I wanted: launch an application normally, open Alt+Z, explicitly allow its window, and adjust HDR without changing its files. It builds on NVIDIA’s engine and the Linux graphics community’s work. Other projects explore related goals using different methods; this project does not claim to be the first or to replace them.
 
-**Experimental release preparation:** a public download URL, original-source license decision and dependency-linkage review are still pending. No universal compatibility or performance guarantee is implied.
+**License:** Chaos HDR's original code and documentation are licensed under [GNU GPL version 2 only](LICENSE) (`GPL-2.0-only`), copyright Chaos Fox. Third-party components retain their own licenses; this grant does not relicense NVIDIA's engine, SDK or other dependencies.
+
+**Experimental release preparation:** a public download URL and fresh-system installation validation are still pending. The KWin/NGX combined-binary licensing question remains unresolved; the source installer downloads dependencies upstream and builds locally. This release does not claim permission to redistribute the combined binary. See [third-party notices](THIRD_PARTY_NOTICES.rst). No universal compatibility or performance guarantee is implied.
 
 ## Start here
 

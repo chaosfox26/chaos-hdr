@@ -34,6 +34,9 @@ must be validated before calling the public one-line workflow ready.
 
 Keep README.md as the public front page with working links to the documentation
 under docs/. Clearly credit development help from OpenAI Codex and Claude Code.
+Original Chaos HDR code and documentation use GPL-2.0-only, as selected by the
+user. Preserve LICENSE in public packages and keep third-party licenses separate;
+do not claim this grants redistribution rights for the combined KWin/NGX binary.
 Credit direct dependencies, reference material and related projects separately;
 do not imply endorsement, copied code, first/unique status or replacement of
 other community work. Preserve required upstream attribution and licenses.

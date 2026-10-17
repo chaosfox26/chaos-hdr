@@ -3,7 +3,7 @@
     "Id": "@TRUEHDR_EFFECT_ID@",
     "Name": "Chaos HDR",
     "Description": "Experimental NVIDIA TrueHDR for an existing SDR game window",
-    "License": "GPL-2.0-or-later",
+    "License": "GPL-2.0-only",
     "EnabledByDefault": false
   },
   "X-KDE-Ordering": 90
