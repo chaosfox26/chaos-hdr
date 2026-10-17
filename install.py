@@ -22,7 +22,7 @@ def install():
               ROOT/'build-desktop/kwin/effects/plugins'/f'{info["effect_id"]}.so']
     for file in required:
         if not file.exists():
-            raise RuntimeError('Build TrueHDR and install its Python dependencies first.')
+            raise RuntimeError('Build Chaos HDR and install its Python dependencies first.')
     if not (ROOT / 'profile.json').exists():
         atomic_write(ROOT / 'profile.json', (ROOT / 'profile.example.json').read_text())
     for name in ('profile.json','profiles.json','window-targets.json','overlay.toggle'):
