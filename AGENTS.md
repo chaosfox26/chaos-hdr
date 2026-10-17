@@ -57,6 +57,9 @@ Public packaging is the default, uses a reviewed file allowlist, and excludes
 personal settings, captures, logs, private validation, archives, compiled
 binaries and installed dependencies. Never publish the entire project folder.
 A clean source-history and license/provenance review is required before release.
+Never put private names, email addresses or the private exclusion list into
+.gitignore or other tracked files. Ignore rules use generic file paths only;
+they do not replace checking actual release content and reachable Git history.
 
 Provide one-command uninstall alongside install. Remove owned services, KWin
 integration, shortcut and menu/link registrations. Preserve profiles/project

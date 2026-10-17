@@ -26,4 +26,6 @@ Public packaging uses an explicit source allowlist and excludes personal profile
 
 Privacy checks include generic identifier/credential patterns and a separate private exclusion-list cross-check. The exclusion list is not published. Automated matching cannot prove the absence of every possible secret format.
 
+Private names, email addresses and exclusion-list values must not appear in `.gitignore` or any tracked file. Ignore rules contain generic paths, not personal identifiers. Release checks examine the actual source, package and reachable Git history; ignoring a file is not redaction of previously committed content. Required upstream attribution remains intact.
+
 Before posting a report, remove names, account identifiers, home paths, window titles, tokens and unrelated logs. Hardware/software versions and a concise description are usually enough. Review screenshots personally before sharing them. Do not submit passwords or API keys.
