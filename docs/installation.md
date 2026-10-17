@@ -39,6 +39,23 @@ It extracts reviewed source, reuses or creates the project-local dependency envi
 
 A public hosted download command is pending a real release URL. Do not substitute an invented URL. Integrity checking is available with `bash Chaos-HDR-CachyOS.run --check`.
 
+## Release acceptance
+
+The one-command installation workflow is ready only when the actual published
+command has been tested on a fresh supported CachyOS/Arch KDE Wayland system.
+That command must fetch the release and every required application dependency,
+build the full production implementation, register and start its services, and
+configure Alt+Z without manual file placement or additional setup commands.
+Normal system authentication for prerequisite packages may still be required.
+
+Record the tested system versions and verify the real TrueHDR runtime loads,
+the direct-buffer path filters an explicitly approved compatible SDR window,
+controls and saved profiles work, startup works after a new login, and the
+documented one-command uninstall removes the integration while preserving
+settings. Integrity and extraction checks on the development machine do not
+substitute for this fresh-system test. Do not offer a reduced-feature runtime
+as equivalent to the production implementation.
+
 ## First use
 
 Launch an application normally. Press Alt+Z, choose its window, click Allow application and enable Chaos HDR. Opening the panel alone never approves an app. See the [user guide](user-guide.md).

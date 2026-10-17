@@ -38,3 +38,5 @@ Check payload integrity/extraction, preserved profiles, uninstall behavior on fi
 Reports should describe the supported environment and reproducible behavior without private data. Separate observed results from hypotheses. Credit borrowed code precisely and preserve its required notices. A link to related work is not a claim of code reuse, endorsement or partnership.
 
 Before publication: settle licensing/provenance, verify the real release URL and document fresh-system test results. Do not invent a download command, first-in-the-world claim, universal compatibility claim or performance guarantee.
+
+The public one-command installation must meet the [release acceptance criteria](installation.md#release-acceptance) before being described as ready. Dependency downloads, the complete production build, startup and Alt+Z setup belong to that command; asking recipients to finish setup manually does not meet the requirement.
