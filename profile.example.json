@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "enabled": true,
+  "peak_brightness": 650,
+  "middle_gray": 50,
+  "contrast": 0,
+  "saturation": 0,
+  "sharpen_intensity": 0,
+  "ignore_film_grain": 0,
+  "debanding": true
+}

@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+output/
+build/
+build-compositor/
+build-desktop/
+overlay.toggle
+profile.json
+profiles.json
+window-targets.json
+launch-settings.json
+*.dxvk-cache
+vendor/imgui/backends/imgui_impl_vulkan.cpp
+vendor/imgui/backends/imgui_impl_vulkan.h
+vendor/presentation-time.xml
