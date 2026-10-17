@@ -28,4 +28,8 @@ Privacy checks include generic identifier/credential patterns and a separate pri
 
 Private names, email addresses and exclusion-list values must not appear in `.gitignore` or any tracked file. Ignore rules contain generic paths, not personal identifiers. Release checks examine the actual source, package and reachable Git history; ignoring a file is not redaction of previously committed content. Required upstream attribution remains intact.
 
+The author explicitly permits their public GitHub handle in repository and
+installation URLs. That limited exception does not allow other private
+identifiers, account details or exclusion-list entries to be published.
+
 Before posting a report, remove names, account identifiers, home paths, window titles, tokens and unrelated logs. Hardware/software versions and a concise description are usually enough. Review screenshots personally before sharing them. Do not submit passwords or API keys.

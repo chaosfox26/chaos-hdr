@@ -36,8 +36,14 @@ step or separate setup command. The GitHub-hosted entry point verifies the
 downloaded source installer's SHA-256 before running it, and keeps temporary
 downloads inside the consolidated project folder.
 
-A hosted command is not available until publication. For an already downloaded
-source installer, the alternative local command is:
+```sh
+curl -fsSL https://github.com/chaosfox26/chaos-hdr/releases/download/v0.1.0/install.sh | bash
+```
+
+This experimental source release has not yet passed a fresh-machine installation
+test. It expects a supported KDE Wayland session with working NVIDIA graphics and
+HDR enabled. Missing build packages may require administrator authentication.
+For an already downloaded source installer, the alternative local command is:
 
 ```sh
 bash Chaos-HDR-CachyOS.run
@@ -45,7 +51,7 @@ bash Chaos-HDR-CachyOS.run
 
 It extracts reviewed source, reuses or creates the project-local dependency environment, obtains pinned NVIDIA components, builds the native effect and shortcut/controller helpers, and registers login startup. Existing picture profiles and app approvals are preserved. There are no game-folder copies or per-game launch flags.
 
-A public hosted download command is pending a real release URL. Do not substitute an invented URL. Integrity checking is available with `bash Chaos-HDR-CachyOS.run --check`.
+The [GitHub release](https://github.com/chaosfox26/chaos-hdr/releases/tag/v0.1.0) also provides source and installer downloads for inspection. Integrity checking is available with `bash Chaos-HDR-CachyOS.run --check`.
 
 ## Release acceptance
 

@@ -8,11 +8,17 @@ Chaos HDR is my implementation of the workflow I wanted: launch an application n
 
 **License:** Chaos HDR's original code and documentation are licensed under [GNU GPL version 2 only](LICENSE) (`GPL-2.0-only`), copyright Chaos Fox. Third-party components retain their own licenses; this grant does not relicense NVIDIA's engine, SDK or other dependencies.
 
-**Experimental release preparation:** a public download URL and fresh-system installation validation are still pending. The KWin/NGX combined-binary licensing question remains unresolved; the source installer downloads dependencies upstream and builds locally. This release does not claim permission to redistribute the combined binary. See [third-party notices](THIRD_PARTY_NOTICES.rst). No universal compatibility or performance guarantee is implied.
+**Experimental source release:** fresh-system installation validation is still pending. The KWin/NGX combined-binary licensing question remains unresolved; the source installer downloads dependencies upstream and builds locally. This release does not claim permission to redistribute the combined binary. See [third-party notices](THIRD_PARTY_NOTICES.rst). No universal compatibility or performance guarantee is implied.
 
 ## Start here
 
-- **Install:** copy the one-line command from this page into a terminal and press Enter. The verified GitHub download URL is pending publication; no working hosted command is available yet.
+- **Install:** paste this one command into a terminal and press Enter:
+
+```sh
+curl -fsSL https://github.com/chaosfox26/chaos-hdr/releases/download/v0.1.0/install.sh | bash
+```
+
+- **Supported target:** CachyOS/Arch, KDE Plasma Wayland, compatible NVIDIA RTX GPU/driver, HDR enabled in KDE. Fresh-machine installation is not yet verified.
 - **Open controls:** Alt+Z → choose a window → Allow application → Enable Chaos HDR.
 - **Uninstall:** `~/.local/bin/chaos-hdr-uninstall`
 - **Delete everything as well:** `~/.local/bin/chaos-hdr-uninstall --purge` — permanently deletes the complete project and saved settings.
