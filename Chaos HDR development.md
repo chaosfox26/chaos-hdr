@@ -1,5 +1,12 @@
 # Chaos HDR development
 
+The [front page](README.md) links the [user guide](docs/user-guide.md),
+[installation and removal](docs/installation.md), [architecture](docs/architecture.md),
+[compatibility/API mapping](docs/compatibility.md), [performance methodology](docs/performance.md),
+[privacy](docs/privacy.md), [troubleshooting](docs/troubleshooting.md),
+[contributing](docs/contributing.md) and [credits/related methods](docs/credits.md).
+This file retains the detailed implementation reference and historical explanations.
+
 Chaos HDR is the application name. NVIDIA TrueHDR is the proprietary conversion
 engine it uses. Stable internal service, shortcut-component, build-target and IPC
 identifiers retain their existing spellings for installation compatibility; these

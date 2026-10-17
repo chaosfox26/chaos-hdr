@@ -32,6 +32,12 @@ must be validated before calling the public one-line workflow ready.
 
 # Release cleanliness and privacy
 
+Keep README.md as the public front page with working links to the documentation
+under docs/. Clearly credit development help from OpenAI Codex and Claude Code.
+Credit direct dependencies, reference material and related projects separately;
+do not imply endorsement, copied code, first/unique status or replacement of
+other community work. Preserve required upstream attribution and licenses.
+
 Keep the active release KDE-only and minimal. Explanatory first-party code
 comments belong in Chaos HDR development.md. Preserve required third-party
 licenses, copyright notices, shebangs and compiler/tooling directives. Document

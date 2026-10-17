@@ -45,7 +45,9 @@ __TRUEHDR_ARCHIVE__
 '''
 
 SOURCE_FILES = (
-    '.gitignore','AGENTS.md','CMakeLists.txt','README.rst','Chaos HDR development.md','THIRD_PARTY_NOTICES.rst',
+    '.gitignore','AGENTS.md','CMakeLists.txt','README.md','Chaos HDR development.md','THIRD_PARTY_NOTICES.rst',
+    'docs/installation.md','docs/user-guide.md','docs/architecture.md','docs/compatibility.md',
+    'docs/performance.md','docs/privacy.md','docs/troubleshooting.md','docs/contributing.md','docs/credits.md',
     'bootstrap.sh','uninstall.sh','desktop.py','desktop_probe.py','displays.py','install.py',
     'package_installer.py','prepare_desktop.py','project.py','sdk.py','test_desktop_watch.py','profile.example.json',
     'native/panel.cpp','native/profiles.hpp','native/test_profiles.cpp','native/vulkan_hdr.cpp','native/vulkan_hdr.hpp',
