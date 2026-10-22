@@ -2,6 +2,12 @@
 
 Experimental NVIDIA TrueHDR and sharpening for selected SDR application windows on KDE Wayland.
 
+**0.2.0 source update:** restores compatibility with KWin 6.8.1 after the
+6.8.0-to-6.8.1 desktop update. Adds daily GitHub release checks and Alt+Z
+Updates & repair, including recovery when the effect cannot load. See the
+[0.2.0 release notes](docs/releases/0.2.0.md). The download command below still
+points to the published 0.1.0 release until 0.2.0 is reviewed and published.
+
 **Created by Chaos Fox with the help of OpenAI Codex and Claude Code.**
 
 Chaos HDR is my implementation of the workflow I wanted: launch an application normally, open Alt+Z, explicitly allow its window, and adjust HDR without changing its files. It builds on NVIDIA’s engine and the Linux graphics community’s work. Other projects explore related goals using different methods; this project does not claim to be the first or to replace them.
@@ -32,6 +38,7 @@ The public command downloads and runs setup directly from GitHub, then handles d
 - Explicit application approval without executable browsing; one selected window is processed at a time.
 - Direct submitted GPU-buffer processing inside KWin, outside the application process.
 - Event-driven idle operation and a watchdog only while a target has HDR enabled.
+- Daily GitHub release checks, update notifications and user-initiated update/repair controls.
 - No first-party telemetry, account inspection or normal frame recording.
 
 ## Documentation

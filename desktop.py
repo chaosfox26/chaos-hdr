@@ -20,12 +20,17 @@ def call(path,method,*arguments,service='org.kde.KWin'):
 def manifest():
     data=json.loads((ROOT/'build-desktop/install-manifest.json').read_text())
     current=subprocess.check_output(['kwin_wayland','--version'],text=True).strip()
-    if data['kwin_version']!=current or Path(data['root'])!=ROOT:
-        raise RuntimeError('KWin or the project location changed. Run the installer again to rebuild the effect.')
+    if Path(data['root'])!=ROOT:
+        raise RuntimeError('The Chaos HDR project moved. Run bash bootstrap.sh from the project folder to rebuild the effect.')
+    if data['kwin_version']!=current:
+        raise RuntimeError(f'Chaos HDR was built for {data["kwin_version"]}; installed: {current}. '
+                           'Run bash bootstrap.sh from the project folder to rebuild. Alt+Z needs the loaded effect.')
     support=call('/KWin','org.kde.KWin.supportInformation')
     running=re.search(r'^KWin version:\s*(\S+)',support,re.M)
     if not running or current.split()[-1]!=running[1]:
-        raise RuntimeError('The running KWin differs from the installed build. Log out and back in before loading the rebuilt effect.')
+        version=running[1] if running else 'unknown'
+        raise RuntimeError(f'Running KWin: {version}; installed: {current}. '
+                           'Log out and back in before loading the rebuilt Chaos HDR effect.')
     return data
 
 def start():
@@ -83,10 +88,12 @@ if __name__=='__main__':
     action=parser.add_mutually_exclusive_group()
     action.add_argument('--daemon',action='store_true');action.add_argument('--stop',action='store_true')
     action.add_argument('--controls',action='store_true')
+    action.add_argument('--attach-only',action='store_true')
     args=parser.parse_args()
     try:
         if args.daemon:daemon()
         elif args.stop:stop()
+        elif args.attach_only:print(start())
         else:
             effect=start();refresh_display()
             if args.controls:atomic_write(ROOT/'overlay.toggle',str(time.time_ns()))

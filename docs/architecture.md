@@ -41,6 +41,15 @@ Stable internal service, build-target and IPC names retain earlier spellings for
 
 ## Required components
 
+The session controller schedules a short-lived Python release checker using a
+single-shot daily timer. A private persisted attempt timestamp and operation
+lock enforce the 24-hour automatic limit across restarts and failures; manual
+checks are explicit. Network requests and setup run outside KWin. The effect
+reads only local update status and links to the native Updates & repair window.
+The shortcut/launcher can open that window even when the effect is unavailable.
+User-requested setup runs in a separate systemd user unit so restarting Chaos
+HDR's own services does not terminate the installer. No desktop restart occurs.
+
 | Component | Why it is needed |
 |---|---|
 | KDE KWin / Plasma Wayland | Owns submitted windows, composition, input and HDR output |
@@ -54,5 +63,6 @@ Stable internal service, build-target and IPC names retain earlier spellings for
 | kscreen-doctor | Reads effective KDE display brightness metadata |
 | Python 3.12 and uv | Dependency setup and short-lived lifecycle helpers; no Python inference loop |
 | systemd user services | Login startup and process crash recovery |
+| libnotify / notify-send | Local update-available and setup-result notifications |
 
 The default route does not require a second Gamescope compositor, SDL or a Python Torch conversion worker. The existing development environment is reused. See [credits](credits.md), [third-party notices](../THIRD_PARTY_NOTICES.rst) and the [detailed development reference](../Chaos%20HDR%20development.md).

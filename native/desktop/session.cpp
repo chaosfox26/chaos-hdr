@@ -6,6 +6,7 @@
 #include <QDBusPendingReply>
 #include <QDBusMessage>
 #include <QDateTime>
+#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -18,6 +19,7 @@
 #include <QStandardPaths>
 #include <QTimer>
 #include <sys/stat.h>
+#include "update_controller.hpp"
 
 namespace {
 QJsonObject read(const QString& path){QFile file(path);if(!file.open(QIODevice::ReadOnly))return {};return QJsonDocument::fromJson(file.readAll()).object();}
@@ -87,7 +89,7 @@ class Session : public QObject {
         if(!attachWanted&&!displayWanted)return;
         attaching=attachWanted;
         QStringList args;
-        if(attaching){attachWanted=false;args={"-c","from desktop import start; print(start())"};}
+        if(attaching){attachWanted=false;args={root+"/desktop.py","--attach-only"};}
         else{displayWanted=false;args={"-c","from desktop import refresh_display; refresh_display()"};}
         helper.setWorkingDirectory(root);helper.start(root+"/.venv/bin/python",args);
     }
@@ -123,6 +125,7 @@ public:
         QDir().mkpath(dataRoot+"/output/desktop");lock.setStaleLockTime(0);
         if(!lock.tryLock()){QTimer::singleShot(0,qApp,&QCoreApplication::quit);return;}
         state={{"ready",false},{"route","desktop"},{"event_driven",true}};
+        if(qEnvironmentVariableIsEmpty("TRUEHDR_DESKTOP_TEST_ROOT"))new ReleaseController(root,this);
         targetDisplay=read(profile)["target_display"].toString();
         for(const auto& path:{livePath,profile,outputConfig,root+"/build-desktop/install-manifest.json",kwinExecutable}){
             if(path.isEmpty())continue;stamps[path]=stamp(path);
@@ -146,7 +149,9 @@ public:
                 state.remove("error");
                 if(attaching){failures=0;retry.stop();state["ready"]=true;state["effect_id"]=result.section('\n',-1);observeLive();}
             }else{
-                state["error"]=error.isEmpty()?"The HDR controller operation failed.":error.left(300);
+                auto failure=error.isEmpty()?QString("The HDR controller operation failed."):error.right(1000);
+                if(state["error"].toString()!=failure)qWarning().noquote()<<failure;
+                state["error"]=failure;
                 if(attaching){state["ready"]=false;if(++failures<=6)retry.start(qMin(30000,1000*(1<<failures)));}
             }
             publish();drain();

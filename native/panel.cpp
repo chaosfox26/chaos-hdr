@@ -25,6 +25,9 @@
 #include <QSignalBlocker>
 #include "profiles.hpp"
 #include <iostream>
+#include <QDir>
+#include <QFrame>
+#include "update_dialog.hpp"
 
 #ifdef TRUEHDR_DEVELOPMENT
 class Panel : public QWidget {
@@ -196,13 +199,21 @@ int main(int argc,char** argv) {
         return 0;
     }
     QString profile = argc>1 ? QString::fromLocal8Bit(argv[1]) : "profile.json";
+    auto root=QFileInfo(QApplication::applicationDirPath()+"/..").absoluteFilePath();
+    app.setApplicationVersion(updateRead(root+"/release.json")["tag"].toString());
+    UpdateDialog* recovery=nullptr;
+    auto showRecovery=[&]{if(!recovery)recovery=new UpdateDialog(root);recovery->show();recovery->raise();recovery->activateWindow();};
+    if(app.arguments().contains("--updates")){app.setQuitOnLastWindowClosed(true);showRecovery();return app.exec();}
     if(app.arguments().contains("--overlay-service")){
         QAction toggle("Show Chaos HDR controls",&app);toggle.setObjectName("toggle-controls");
         KGlobalAccel::setGlobalShortcut(&toggle,QKeySequence("Alt+Z"));
         if(!KGlobalAccel::self()->shortcut(&toggle).contains(QKeySequence("Alt+Z"))){
             std::cerr<<"Alt+Z could not be registered"<<std::endl;return 1;
         }
-        QObject::connect(&toggle,&QAction::triggered,&app,[profile]{
+        QObject::connect(&toggle,&QAction::triggered,&app,[profile,&showRecovery]{
+            QDBusInterface effect("org.kde.KWin","/TrueHDR","org.truehdr.Desktop");effect.setTimeout(1000);
+            QDBusReply<bool> ready=effect.call("ping");
+            if(!ready.isValid()||!ready.value()){showRecovery();return;}
             QSaveFile file(QFileInfo(profile).absolutePath()+"/overlay.toggle");
             if(file.open(QIODevice::WriteOnly)){file.setPermissions(QFileDevice::ReadOwner|QFileDevice::WriteOwner);file.write(QByteArray::number(QDateTime::currentMSecsSinceEpoch()));file.commit();}
         });
@@ -210,11 +221,12 @@ int main(int argc,char** argv) {
         return app.exec();
     }
 #ifndef TRUEHDR_DEVELOPMENT
-    auto root=QFileInfo(QApplication::applicationDirPath()+"/..").absoluteFilePath();
+    QDBusInterface effect("org.kde.KWin","/TrueHDR","org.truehdr.Desktop");effect.setTimeout(1000);
+    QDBusReply<bool> ready=effect.call("ping");
+    if(!ready.isValid()||!ready.value()){app.setQuitOnLastWindowClosed(true);showRecovery();return app.exec();}
     return QProcess::startDetached(root+"/.venv/bin/python",{root+"/desktop.py","--controls"})?0:1;
 #else
     if(!app.arguments().contains("--preview-controls") && !app.arguments().contains("--test-screenshot")){
-        auto root=QFileInfo(QApplication::applicationDirPath()+"/..").absoluteFilePath();
         return QProcess::startDetached(root+"/.venv/bin/python",{root+"/desktop.py","--controls"})?0:1;
     }
     Panel panel(profile);
