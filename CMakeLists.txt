@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(truehdr_linux LANGUAGES CXX)
+project(truehdr_linux VERSION 0.2.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 option(TRUEHDR_DEVELOPMENT "Enable development-only controls and fixtures" OFF)
 find_package(Qt6 REQUIRED COMPONENTS Widgets DBus)

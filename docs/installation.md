@@ -94,4 +94,11 @@ Purge is destructive. The uninstaller checks the destination and stops on compon
 
 The canonical folder is `~/Documents/ChatGPT/CachyOS/RTX HDR experimental`. Source, `.venv`, `build`, `build-desktop`, settings and `output` stay inside it. OS-managed service, menu, shortcut and uninstall registrations use normal OS locations and reference this folder.
 
-After a KWin update, log out/in if the running version differs, then rerun setup to build against the matching version. Do not force-load a mismatched effect. Existing internal service/IPC names are retained for compatibility. See [troubleshooting](troubleshooting.md).
+After a KWin update, run `bash bootstrap.sh` from the existing project folder to
+rebuild and reinstall against the matching version. This preserves saved profiles
+and app approvals. If running KWin differs from the installed version, log out/in
+first. When they already match, no additional desktop restart is needed. A blocked
+effect also prevents Alt+Z from showing its overlay even if both services are
+running. Do not force-load a mismatched effect or edit its manifest to bypass the
+check. Existing internal service/IPC names are retained for compatibility. See
+[troubleshooting](troubleshooting.md#startup-or-kwin-update-problems).
