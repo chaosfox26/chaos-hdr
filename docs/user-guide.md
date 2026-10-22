@@ -2,6 +2,29 @@
 
 [Back to Chaos HDR](../README.md)
 
+## Updates and desktop repair
+
+Open Alt+Z and choose **Updates & repair**. If the effect cannot load, Alt+Z and
+the Chaos HDR application launcher open this recovery window directly.
+
+The window shows your installed version, release channel, last check and any
+connection/setup error. Automatic checks contact this project's GitHub releases
+once every 24 hours at most; **Check for updates** requests an extra manual
+check. A newer applicable release produces **Chaos HDR has an update** and an
+**Install** button. Experimental installations include prereleases; stable
+installations exclude them. No update installs without your confirmation.
+
+After a KWin update, **Rebuild for this desktop** rebuilds the existing source
+even if no new Chaos HDR release exists. It preserves saved profiles and allowed
+applications and restarts only Chaos HDR. If the running desktop differs from
+the installed desktop version, sign out and back in first. Future KWin changes
+may still need a new Chaos HDR release.
+
+Release installation preserves settings. A source checkout must be clean and
+must fast-forward to the release without replacing local commits; otherwise the
+window explains why installation stopped. Rebuild remains available for local
+development work. Setup progress/errors are local under `output/updates/`.
+
 ## Choose an application
 
 1. Start the application using its normal launcher.

@@ -19,6 +19,41 @@ Explanatory comments relocated from first-party source. Original source location
 
 The native KWin direct-buffer path, NVIDIA TrueHDR/debanding, sharpening, synchronization, picture profiles, input handling and conditional watchdog behavior are unchanged by comment relocation. The default build selects production targets; developer fixtures are explicit. Historical routes are not part of the default build.
 
+## KWin update recovery
+
+The native effect must match the recorded build version, installed KWin and
+running KWin. The attachment guard fails closed before loading any plugin when
+these differ. Desktop updates therefore require an explicit local rebuild with
+`bash bootstrap.sh`; normal login startup does not compile code, install packages
+or bypass compatibility checks.
+
+The session controller invokes `desktop.py --attach-only` so expected attachment
+failures reach stderr as a concise message. Errors include the mismatched
+versions and recovery step. The controller saves the end of long errors, where
+the actionable exception normally appears, and logs changed failures to the user
+journal. Retries remain bounded and healthy idle remains event driven.
+
+When the effect answers its health check, Alt+Z's helper writes `overlay.toggle`
+and the effect draws the controls. If the effect is unavailable, the helper opens
+the native Updates & repair window instead. The application launcher provides
+the same recovery entry. Its release-check, install and rebuild actions start
+separate systemd user units, independent of the effect and its controller.
+
+`updates.py` uses unauthenticated GitHub releases and existing semantic tags.
+`release.json` records the installed tag and whether experimental releases apply.
+The daily controller timer performs no healthy-idle polling; a private persisted
+attempt timestamp and lock prevent repeated automatic network requests after
+restarts or offline errors. Explicit manual checks may run sooner. The checker
+notifies once per newly available tag and writes only local update status.
+Installation verifies the expected repository asset URL and GitHub SHA-256
+digest. Source checkouts must be clean, use the official origin and fast-forward
+without dropping local commits; packaged installations retain a source backup.
+Rebuild reuses existing setup and is available without a newer release.
+
+Version-guard and updater tests use isolated manifests, profiles and mocked
+provider/setup operations. They do not load an effect, install a real release or
+modify the live desktop. Production capture restrictions remain unchanged.
+
 ## GitHub download entry point
 
 `github-install.sh.in` is a release template, not a ready-to-run hosted command.

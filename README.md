@@ -1,5 +1,39 @@
 # Chaos HDR
 
+## 0.2.0 release notes — KWin 6.8.1 compatibility
+
+**Restores compatibility with KWin 6.8.1 after the 6.8.0-to-6.8.1 desktop update.**
+The native effect can be rebuilt for the updated desktop, restoring HDR and the
+Alt+Z overlay while keeping the compatibility guard in place.
+
+- **Updates & repair in Alt+Z:** access release updates and desktop repair from
+  the menu. If the effect cannot load, Alt+Z and the application launcher open
+  an independent recovery window.
+- **Daily GitHub release checks:** automatic checks run at most once every
+  24 hours, including after failed attempts or login restarts. Manual checks
+  show the last check and any connection error.
+- **Update notifications:** newer applicable releases display “Chaos HDR has an
+  update.” Experimental installations include prereleases; stable installations
+  exclude them.
+- **User-controlled installation:** updates install only after confirmation and
+  verify the release installer. Local source changes and commits are protected.
+- **Rebuild for this desktop:** repair desktop compatibility without waiting for
+  a new Chaos HDR release. Saved profiles and allowed applications are preserved;
+  only Chaos HDR's services restart.
+- **Clear startup errors:** mismatched versions and recovery steps appear in the
+  user service log.
+
+HDR conversion, debanding and sharpening algorithms are unchanged. Future KWin
+API changes may still require source changes; a rebuild cannot guarantee every
+future desktop version will work. If running and installed KWin differ, sign
+out and back in before rebuilding.
+
+**Publication status:** 0.2.0 is a source update awaiting review and publication.
+The download command below still points to the published 0.1.0 release.
+[Full 0.2.0 release notes](docs/releases/0.2.0.md).
+
+## About Chaos HDR
+
 Experimental NVIDIA TrueHDR and sharpening for selected SDR application windows on KDE Wayland.
 
 **Created by Chaos Fox with the help of OpenAI Codex and Claude Code.**
@@ -32,6 +66,7 @@ The public command downloads and runs setup directly from GitHub, then handles d
 - Explicit application approval without executable browsing; one selected window is processed at a time.
 - Direct submitted GPU-buffer processing inside KWin, outside the application process.
 - Event-driven idle operation and a watchdog only while a target has HDR enabled.
+- Daily GitHub release checks, update notifications and user-initiated update/repair controls.
 - No first-party telemetry, account inspection or normal frame recording.
 
 ## Documentation

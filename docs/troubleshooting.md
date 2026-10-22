@@ -12,15 +12,44 @@
 
 ## Startup or KWin update problems
 
-The effect must match both installed and running KWin. If they differ, log out/in, then rerun setup. Do not force-load an incompatible plugin.
+If Alt+Z stops opening the overlay after a desktop update, the shortcut service
+may still be running while the native effect refuses to load. An active systemd
+service does not mean the effect loaded successfully. In 0.2.0, Alt+Z and the
+application launcher open Updates & repair when the effect is unavailable. Use
+Rebuild for this desktop there. Earlier installations need the command below.
+
+The effect must match both installed and running KWin. For example, an effect
+built for KWin 6.8.0 is deliberately blocked after updating to 6.8.1. Keep that
+compatibility check: editing the build manifest or forcing the old plugin to
+load can make the compositor unstable.
+
+From the existing Chaos HDR project folder, rebuild and reinstall with:
+
+```sh
+bash bootstrap.sh
+```
+
+This reuses the dependency environment and preserves saved profiles and app
+approvals. It rebuilds the native effect and restarts only Chaos HDR's services.
+When installed and running KWin already match, a desktop restart is unnecessary.
+If setup reports that running KWin differs from installed KWin, log out/in when
+convenient, then rerun setup. Chaos HDR does not automatically rebuild or install
+packages during normal startup.
 
 The existing service identifiers remain stable after renaming:
 
 ```sh
 systemctl --user status truehdr-desktop.service truehdr-overlay-controls.service
+journalctl --user -b -u truehdr-desktop.service --no-pager
 ```
 
 These are user graphical-session services, not root services. The native controller reports errors locally. If logs are needed for a report, inspect and redact them before sharing; automatic uploading is not part of the app.
+
+The local `output/desktop/controller-status.json` must report `ready: true` after
+successful attachment; `build-desktop/install-manifest.json` records the KWin
+version used for the build. After setup, verify that Alt+Z opens the controls and
+an explicitly approved compatible SDR window is processed. A successful rebuild
+alone does not establish conversion for every application.
 
 ## Controls and screenshots
 

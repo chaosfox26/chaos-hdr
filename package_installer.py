@@ -49,14 +49,15 @@ __TRUEHDR_ARCHIVE__
 SOURCE_FILES = (
     '.gitignore','AGENTS.md','CMakeLists.txt','README.md','Chaos HDR development.md','THIRD_PARTY_NOTICES.rst',
     'docs/installation.md','docs/user-guide.md','docs/architecture.md','docs/compatibility.md',
-    'docs/performance.md','docs/privacy.md','docs/troubleshooting.md','docs/contributing.md','docs/credits.md',
+    'docs/performance.md','docs/privacy.md','docs/troubleshooting.md','docs/contributing.md','docs/credits.md','docs/releases/0.2.0.md',
     'bootstrap.sh','uninstall.sh','github-install.sh.in','desktop.py','desktop_probe.py','displays.py','install.py',
-    'package_installer.py','prepare_desktop.py','project.py','sdk.py','test_desktop_watch.py','profile.example.json',
+    'package_installer.py','prepare_desktop.py','project.py','sdk.py','test_desktop_watch.py','test_desktop_version.py','test_updates.py','profile.example.json',
+    'updates.py','release.json','native/update_dialog.hpp',
     'native/panel.cpp','native/profiles.hpp','native/test_profiles.cpp','native/vulkan_hdr.cpp','native/vulkan_hdr.hpp',
     'native/desktop/CMakeLists.txt','native/desktop/bootstrap.cpp','native/desktop/effect.cpp',
     'native/desktop/effect.json.in','native/desktop/gpu.cpp','native/desktop/gpu.hpp','native/desktop/gpu_test.cpp',
     'native/desktop/input.comp','native/desktop/loader.qml','native/desktop/presentation_metrics.hpp',
-    'native/desktop/session.cpp','native/desktop/window_test.cpp',
+    'native/desktop/session.cpp','native/desktop/update_controller.hpp','native/desktop/window_test.cpp',
     'vendor/imgui/LICENSE.txt','vendor/imgui/UPSTREAM.txt','vendor/imgui/imconfig.h',
     'vendor/imgui/imgui.h','vendor/imgui/imgui_internal.h','vendor/imgui/imgui.cpp',
     'vendor/imgui/imgui_draw.cpp','vendor/imgui/imgui_widgets.cpp','vendor/imgui/imgui_tables.cpp',
@@ -95,7 +96,7 @@ def build(personal=False, installer_url=None):
             if (ROOT/name).is_file():
                 value=json.loads((ROOT/name).read_text())
                 files[name]=(json.dumps(value,indent=2)+'\n').encode()
-    manifest={'format':1,'default_route':'desktop','personal_profiles':personal,'production_capture':False,'source_allowlist':True,
+    manifest={'format':1,'release':json.loads((ROOT/'release.json').read_text()),'default_route':'desktop','personal_profiles':personal,'production_capture':False,'source_allowlist':True,
               'dependencies':'Fetched separately from their publishers by bootstrap.sh',
               'files':{name:hashlib.sha256(data).hexdigest() for name,data in sorted(files.items())}}
     files['INSTALL-MANIFEST.json']=(json.dumps(manifest,indent=2)+'\n').encode()

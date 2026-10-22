@@ -8,6 +8,7 @@ from sdk import ROOT, fetch_sdk
 def prepare(developer_checks=False):
     fetch_sdk()
     version=subprocess.check_output(['kwin_wayland','--version'],text=True).strip()
+    release=json.loads((ROOT/'release.json').read_text())
     digest=hashlib.sha256((version+'\n'+str(ROOT)).encode())
     sources=[*sorted((ROOT/'native/desktop').glob('*')),
              ROOT/'native/vulkan_hdr.cpp',ROOT/'native/vulkan_hdr.hpp',ROOT/'native/profiles.hpp']
@@ -23,7 +24,7 @@ def prepare(developer_checks=False):
     subprocess.run(['cmake','--build',str(build),'--target',*targets,'--parallel','4'],check=True)
     subprocess.run(['cmake','-S',str(ROOT),'-B',str(ROOT/'build'),'-DCMAKE_BUILD_TYPE=Release','-DTRUEHDR_DEVELOPMENT='+('ON' if developer_checks else 'OFF')],check=True)
     subprocess.run(['cmake','--build',str(ROOT/'build'),'--target','truehdr-panel','--parallel','4'],check=True)
-    manifest={'route':'desktop','effect_id':effect,'kwin_version':version,'root':str(ROOT),
+    manifest={'route':'desktop','effect_id':effect,'kwin_version':version,'release':release,'root':str(ROOT),
               'input':'direct-dmabuf','runtime':'1.2.3','debanding_default':True,'development_checks':developer_checks}
     (build/'install-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
     print('Built the Chaos HDR direct-buffer KDE route. No games were launched.')

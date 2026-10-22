@@ -58,11 +58,14 @@ def install():
 
 
 def uninstall():
+    transient=('chaos-hdr-update','chaos-hdr-release-check')
+    for name in transient:
+        subprocess.run(['systemctl','--user','stop',name],check=False,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
     services=('truehdr-worker','truehdr-native-worker','truehdr-overlay-controls','truehdr-desktop')
     for name in services:
         subprocess.run(['systemctl','--user','disable','--now',name],check=False,
                        stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-    for name in services:
+    for name in (*services,*transient):
         state=subprocess.run(['systemctl','--user','is-active','--quiet',name],check=False)
         if state.returncode not in (3,4):
             raise RuntimeError('An HDR service could not be stopped. Files were retained; retry uninstall after stopping it.')
