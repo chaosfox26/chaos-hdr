@@ -18,6 +18,17 @@ Chaos HDR's original code and documentation are licensed under [GNU GPL version 
 
 Normal source setup uses `bash bootstrap.sh`; it obtains dependencies, builds production targets and registers the integration. An already-provisioned tree can rebuild production with `.venv/bin/python prepare_desktop.py`. Reinstall registrations with `.venv/bin/python install.py` when needed.
 
+Run `.venv/bin/python -m unittest test_desktop_version.py test_updates.py` to check installed,
+running and recorded KWin version handling without loading an effect or changing
+the live desktop. The fixture also checks that the controller's attachment command
+returns an actionable error instead of a Python traceback.
+
+Updater fixtures cover release ordering/channels, persisted daily throttling,
+offline/rate-limit errors, digest verification, preserved settings, local source
+changes and non-fast-forward refusal. They never install into the real project.
+`release.json` follows the published `vMAJOR.MINOR.PATCH` tags and experimental
+release flag; keep it aligned with CMake versions and prepared release notes.
+
 Development checks require explicit development compilation:
 
 ```sh

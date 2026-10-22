@@ -29,6 +29,7 @@
 #include <QPointer>
 #include <QJsonArray>
 #include <QImage>
+#include <QProcess>
 #include <QFileSystemWatcher>
 #include <cmath>
 #include <chrono>
@@ -41,6 +42,7 @@ class TrueHDRDesktop : public Effect {
     Q_CLASSINFO("D-Bus Interface", "org.truehdr.Desktop")
     QString root=QString::fromUtf8(TRUEHDR_ROOT),profile;
     QJsonObject config;QString error;QTimer refresh;QFileSystemWatcher settingsWatch;
+    QJsonObject releaseStatus;
     std::unique_ptr<DesktopGPU> gpu;
     std::unique_ptr<GLTexture> source,output;
     std::unique_ptr<GLFramebuffer> inputFbo;
@@ -250,6 +252,11 @@ class TrueHDRDesktop : public Effect {
             ImGui::SeparatorText("Sharpen");slider("Intensity","sharpen_intensity",0,100,0,"%d%%");slider("Ignore Film Grain","ignore_film_grain",0,100,0,"%d%%");
             if(!error.isEmpty())ImGui::TextWrapped("%s",error.toUtf8().constData());
             ImGui::TextDisabled("Saved automatically");if(ImGui::Button("Done",{-1,0}))setVisible(false);item("done");
+            ImGui::SeparatorText("Updates");
+            ImGui::TextWrapped("%s",releaseStatus["message"].toString("Daily release checks and desktop repair").toUtf8().constData());
+            if(ImGui::Button("Updates & repair...",{-1,0})){
+                setVisible(false);QProcess::startDetached(root+"/build/truehdr-panel",{profile,"--updates"});
+            }item("updates");
             if(changed)save();
         }ImGui::End();
     }
@@ -298,6 +305,9 @@ public:
         if(knownWindow(effects->activeWindow()))selectWindow(effects->activeWindow(),false);
         if(!selectedWindow)for(auto* w:effects->stackingOrder())if(knownWindow(w))selectWindow(w,false);
         read();statusTimer.start();toggleStamp=QFileInfo(root+"/overlay.toggle").lastModified().toMSecsSinceEpoch();
+        auto readRelease=[this]{QFile file(root+"/output/updates/status.json");if(file.open(QIODevice::ReadOnly))releaseStatus=QJsonDocument::fromJson(file.readAll()).object();};
+        readRelease();QDir().mkpath(root+"/output/updates");settingsWatch.addPath(root+"/output/updates");
+        connect(&settingsWatch,&QFileSystemWatcher::directoryChanged,this,[this,readRelease](const QString& path){if(path==root+"/output/updates"){readRelease();if(visible)effects->addRepaintFull();}});
         auto settingsChanged=[this]{
             for(const auto& path:{profile,root+"/overlay.toggle"})
                 if(QFileInfo::exists(path)&&!settingsWatch.files().contains(path))settingsWatch.addPath(path);

@@ -2,6 +2,7 @@
   "KPlugin": {
     "Id": "@TRUEHDR_EFFECT_ID@",
     "Name": "Chaos HDR",
+    "Version": "@PROJECT_VERSION@",
     "Description": "Experimental NVIDIA TrueHDR for an existing SDR game window",
     "License": "GPL-2.0-only",
     "EnabledByDefault": false

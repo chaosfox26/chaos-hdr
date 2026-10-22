@@ -12,6 +12,15 @@
 - Explicit app approvals and selected picture profiles are saved locally.
 - Health/status and settings files use owner-only permissions.
 
+The release checker makes unauthenticated requests to this project's public
+GitHub releases, at most once per 24 hours automatically and additionally when
+you request a manual check or installation. These requests expose ordinary
+network metadata to GitHub, but send no profiles, app/window identities, account
+data or diagnostic uploads. Check timestamps, release availability and setup
+logs stay under the project's private `output/updates/` folder. Installing an
+update downloads its verified release asset; rebuilding may fetch prerequisites
+through the existing installer. Neither action runs silently.
+
 This is a description of the reviewed first-party code. NVIDIA’s runtime and driver are proprietary; their internals have not been independently audited or network-monitored.
 
 ## Installation and development
