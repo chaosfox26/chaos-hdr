@@ -3,8 +3,8 @@
 ## 0.2.0 release notes — KWin 6.8.1 compatibility
 
 **Restores compatibility with KWin 6.8.1 after the 6.8.0-to-6.8.1 desktop update.**
-The native effect can be rebuilt for the updated desktop, restoring HDR and the
-Alt+Z overlay while keeping the compatibility guard in place.
+The native effect can be rebuilt for the updated desktop, restoring effect
+loading and the Alt+Z overlay while keeping the compatibility guard in place.
 
 - **Updates & repair in Alt+Z:** access release updates and desktop repair from
   the menu. If the effect cannot load, Alt+Z and the application launcher open
@@ -28,8 +28,12 @@ API changes may still require source changes; a rebuild cannot guarantee every
 future desktop version will work. If running and installed KWin differ, sign
 out and back in before rebuilding.
 
-**Publication status:** 0.2.0 is a source update awaiting review and publication.
-The download command below still points to the published 0.1.0 release.
+**Publication status:** the 0.2.0 implementation is merged; release verification
+and separate publication authorization are still required. The download command
+below remains pinned to the published 0.1.0 release and does not install 0.2.0.
+Local automated tests and a production rebuild on KWin 6.8.1 passed. Fresh-system
+installation, startup after a new login, real-application HDR conversion and
+installation of a newer hosted release remain unverified.
 [Full 0.2.0 release notes](docs/releases/0.2.0.md).
 
 ## About Chaos HDR
