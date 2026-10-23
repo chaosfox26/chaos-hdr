@@ -1,6 +1,6 @@
 # Chaos HDR
 
-## 0.4.0 — the Chaos HDR sidebar
+## 0.4.1 — packaged installer
 
 A full-height, translucent Alt+Z sidebar with neon lettering, animated
 lightning, smooth transitions and independent HDR and sharpening controls.
@@ -12,7 +12,10 @@ rollback and GPU-resource cleanup. Matched local tests preserved approximately
 0.27 ms of GPU processing at 1440p. See the [release notes](docs/releases/0.4.0.md)
 for results, limitations and the cold-rebuild tradeoff.
 
-[Download the experimental 0.4.0 source installer](https://github.com/chaosfox26/chaos-hdr/releases/tag/v0.4.0).
+**[Download the packaged installer](https://github.com/chaosfox26/chaos-hdr/releases/download/v0.4.1/Chaos-HDR-CachyOS.run)** · [0.4.1 release notes](docs/releases/0.4.1.md)
+
+0.4.1 publishes the 0.4.0 implementation as a regular GitHub release with matching
+installer and updater metadata. HDR processing and the overlay are unchanged.
 Fresh-system installation and new-login acceptance remain unverified.
 
 ## About Chaos HDR
@@ -32,7 +35,7 @@ Chaos HDR is my implementation of the workflow I wanted: launch an application n
 - **Install:** paste this one command into a terminal and press Enter:
 
 ```sh
-curl -fsSL https://github.com/chaosfox26/chaos-hdr/releases/download/v0.4.0/install.sh | bash
+curl -fsSL https://github.com/chaosfox26/chaos-hdr/releases/download/v0.4.1/install.sh | bash
 ```
 
 - **Supported target:** CachyOS/Arch, KDE Plasma Wayland, compatible NVIDIA RTX GPU/driver, HDR enabled in KDE. Fresh-machine installation is not yet verified.

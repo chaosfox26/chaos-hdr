@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(truehdr_desktop VERSION 0.4.0 LANGUAGES CXX)
+project(truehdr_desktop VERSION 0.4.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_AUTOMOC ON)
 option(TRUEHDR_DEVELOPMENT "Enable private fixtures and frame readback diagnostics" OFF)

@@ -29,7 +29,7 @@ on different hardware, displays, drivers or KWin versions.
 
 ## One-command installation
 
-The command below installs the [experimental 0.4.0 source release](https://github.com/chaosfox26/chaos-hdr/releases/tag/v0.4.0).
+The command below installs the [0.4.1 source release](https://github.com/chaosfox26/chaos-hdr/releases/tag/v0.4.1).
 Fresh-system installation, new-login startup and a complete hosted-release
 upgrade remain unverified. Publication does not establish that acceptance.
 
@@ -41,7 +41,7 @@ downloaded source installer's SHA-256 before running it, and keeps temporary
 downloads inside the consolidated project folder.
 
 ```sh
-curl -fsSL https://github.com/chaosfox26/chaos-hdr/releases/download/v0.4.0/install.sh | bash
+curl -fsSL https://github.com/chaosfox26/chaos-hdr/releases/download/v0.4.1/install.sh | bash
 ```
 
 This experimental source release has not yet passed a fresh-machine installation
@@ -55,7 +55,7 @@ bash Chaos-HDR-CachyOS.run
 
 It extracts reviewed source, reuses or creates the project-local dependency environment, obtains pinned NVIDIA components, builds the native effect and shortcut/controller helpers, and registers login startup. Existing picture profiles and app approvals are preserved. There are no game-folder copies or per-game launch flags.
 
-The [GitHub release](https://github.com/chaosfox26/chaos-hdr/releases/tag/v0.4.0) also provides source and installer downloads for inspection. Integrity checking is available with `bash Chaos-HDR-CachyOS.run --check`.
+The [GitHub release](https://github.com/chaosfox26/chaos-hdr/releases/tag/v0.4.1) also provides source and installer downloads for inspection. Integrity checking is available with `bash Chaos-HDR-CachyOS.run --check`.
 
 ## Release acceptance
 
@@ -66,7 +66,8 @@ build the full production implementation, register and start its services, and
 configure Alt+Z without manual file placement or additional setup commands.
 Normal system authentication for prerequisite packages may still be required.
 
-For 0.4.0, automated source and package tests, isolated KDE graphics checks,
+0.4.1 changes release metadata and packaging; its runtime source is identical
+to 0.4.0. For 0.4.0, automated source and package tests, isolated KDE graphics checks,
 and an existing-machine KWin 6.8.1 production build passed. Fresh-system
 installation, a new-login startup check and a complete installation from the
 hosted release remain unverified. Local extraction and mocked updater checks
