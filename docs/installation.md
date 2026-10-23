@@ -4,6 +4,12 @@
 
 ## Requirements
 
+**Desktop testing has been limited to an existing CachyOS installation with KDE
+Plasma Wayland. Other distributions and desktops, including GNOME, are untested
+for installation and runtime use.** The current integration depends on KDE/KWin.
+The installer's CachyOS/Arch package support does not establish validation on
+other Arch-based systems or compatibility with another desktop environment.
+
 - CachyOS/Arch with KDE Plasma Wayland and systemd user-session support.
 - A compatible NVIDIA RTX GPU and Linux driver exposing the required Vulkan and external-memory features.
 - An HDR display with HDR enabled in KDE. The current TrueHDR binding accepts peak targets from 400 to 2,000 nits.

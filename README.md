@@ -42,13 +42,18 @@ Chaos HDR is my implementation of the workflow I wanted: launch an application n
 
 ## Start here
 
+**Tested desktop: an existing CachyOS installation with KDE Plasma Wayland.**
+Other distributions and desktop environments, including **GNOME**, have not
+been tested for installation or runtime use. The current effect requires KDE/KWin;
+compatibility with other desktops is not established.
+
 - **Install:** paste this one command into a terminal and press Enter:
 
 ```sh
 curl -fsSL https://github.com/chaosfox26/chaos-hdr/releases/latest/download/install.sh | bash
 ```
 
-- **Supported target:** CachyOS/Arch, KDE Plasma Wayland, compatible NVIDIA RTX GPU/driver, HDR enabled in KDE. Fresh-machine installation is not yet verified.
+- **Installer target:** CachyOS/Arch, KDE Plasma Wayland, compatible NVIDIA RTX GPU/driver, HDR enabled in KDE. Other Arch-based systems and fresh-machine installation remain unverified.
 - **Open controls:** Alt+Z → choose a window → Allow application → choose HDR and sharpening.
 - **Uninstall:** `~/.local/bin/chaos-hdr-uninstall`
 - **Delete everything as well:** `~/.local/bin/chaos-hdr-uninstall --purge` — permanently deletes the complete project and saved settings.

@@ -2,6 +2,18 @@
 
 [Back to Chaos HDR](../README.md)
 
+## Distribution and desktop testing
+
+**The tested desktop is an existing CachyOS installation running KDE Plasma
+Wayland. Other distributions and desktop environments, including GNOME, have
+not been tested for installation or runtime use.**
+
+The current effect is built for KDE's KWin compositor. GNOME and other desktops
+are not confirmed compatible. Although prerequisite setup targets CachyOS/Arch,
+other Arch-based installations have not been validated. Portable source checks
+on a CI runner do not establish support for that runner's desktop or distribution.
+Fresh-system installation and startup after a new login also remain unverified.
+
 ## Why the API does not select the hook
 
 Chaos HDR processes the window buffer delivered to KWin. It does not add a separate DirectX/OpenGL/Vulkan hook for each application. This table documents typical routes; it is not a runtime translation layer or a completed certification matrix.
