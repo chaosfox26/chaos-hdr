@@ -29,6 +29,11 @@ on different hardware, displays, drivers or KWin versions.
 
 ## One-command installation
 
+The command below installs the published experimental 0.1.0 release. The 0.2.0
+implementation is merged, but its locally prepared installer is not published.
+Generating that candidate does not change the existing download or establish
+that the public one-command workflow is ready.
+
 The primary installation workflow is to copy one command from the GitHub front
 page, paste it into a terminal and press Enter. It downloads the release and runs
 setup automatically. There is no manual binary download, executable-permission
@@ -61,6 +66,12 @@ That command must fetch the release and every required application dependency,
 build the full production implementation, register and start its services, and
 configure Alt+Z without manual file placement or additional setup commands.
 Normal system authentication for prerequisite packages may still be required.
+
+For 0.2.0, local automated tests and an existing-machine KWin 6.8.1 production
+rebuild passed. Fresh-system installation, a new-login startup check,
+real-application HDR conversion and installation from a genuinely newer hosted
+release remain unverified. Local extraction and mocked updater checks are not
+substitutes for those results.
 
 Record the tested system versions and verify the real TrueHDR runtime loads,
 the direct-buffer path filters an explicitly approved compatible SDR window,
@@ -95,8 +106,10 @@ Purge is destructive. The uninstaller checks the destination and stops on compon
 The canonical folder is `~/Documents/ChatGPT/CachyOS/RTX HDR experimental`. Source, `.venv`, `build`, `build-desktop`, settings and `output` stay inside it. OS-managed service, menu, shortcut and uninstall registrations use normal OS locations and reference this folder.
 
 After a KWin update, run `bash bootstrap.sh` from the existing project folder to
-rebuild and reinstall against the matching version. This preserves saved profiles
-and app approvals. If running KWin differs from the installed version, log out/in
+rebuild and reinstall that folder's source against the matching version. This
+does not download the unpublished 0.2.0 changes into a 0.1.0 installation. Future
+API changes may require updated source as well as a rebuild. Rebuilding preserves
+saved profiles and app approvals. If running KWin differs from the installed version, log out/in
 first. When they already match, no additional desktop restart is needed. A blocked
 effect also prevents Alt+Z from showing its overlay even if both services are
 running. Do not force-load a mismatched effect or edit its manifest to bypass the

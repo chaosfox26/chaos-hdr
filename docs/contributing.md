@@ -26,8 +26,9 @@ returns an actionable error instead of a Python traceback.
 Updater fixtures cover release ordering/channels, persisted daily throttling,
 offline/rate-limit errors, digest verification, preserved settings, local source
 changes and non-fast-forward refusal. They never install into the real project.
-`release.json` follows the published `vMAJOR.MINOR.PATCH` tags and experimental
+`release.json` records the prepared `vMAJOR.MINOR.PATCH` version and experimental
 release flag; keep it aligned with CMake versions and prepared release notes.
+This metadata does not establish that a tag or release has been published.
 
 Development checks require explicit development compilation:
 
@@ -42,11 +43,42 @@ The fixture uses an isolated compositor and copied settings. Build-mode changes 
 
 Run `.venv/bin/python package_installer.py` for the non-personal source installer. Only explicitly allowlisted files are included; update that list when adding public documentation or source. `--personal` is private backup packaging, not the public release. Never publish the entire development folder.
 
-For publication, pass `--installer-url` with the exact versioned HTTPS GitHub
-release URL for `Chaos-HDR-CachyOS.run`. Packaging also generates
-`output/installers/install.sh`, containing that URL and the installer's SHA-256.
-Publish both assets in the same release, then verify the hosted entry point
-before adding its one-line download-and-run command to the front page. The
+Prepare release assets in a clean source staging copy inside `output/scratch`,
+containing the reviewed public allowlist and required licenses. Reuse the existing
+project Python environment to run that copy's packager. It writes to the copy's
+`output/installers`, leaving earlier installer assets untouched. Do not upload a
+mixed directory containing old launchers, personal backups or unrelated files.
+
+Pass `--public --installer-url` with the exact versioned HTTPS GitHub release URL
+for `Chaos-HDR-CachyOS.run`. For a local 0.2.0 candidate, the intended path is
+`https://github.com/chaosfox26/chaos-hdr/releases/download/v0.2.0/Chaos-HDR-CachyOS.run`.
+This is packaging metadata for a future asset, not a working download URL today.
+Confirm its repository and tag match the intended release. Packaging generates
+`install.sh` containing that URL and the current installer's SHA-256, alongside
+the source archive, `.run` and dedicated `.sha256` file.
+
+Collect only those four public files in a new version-specific asset directory,
+such as `output/installers/v0.2.0`. From that directory, generate and verify the
+aggregate checksums after all four files are final:
+
+```sh
+sha256sum Chaos-HDR-CachyOS.run Chaos-HDR-CachyOS-source.tar.gz Chaos-HDR-CachyOS.sha256 install.sh > SHA256SUMS
+sha256sum -c SHA256SUMS
+sha256sum -c Chaos-HDR-CachyOS.sha256
+bash Chaos-HDR-CachyOS.run --check
+```
+
+The packager does not generate `SHA256SUMS`; never reuse an old aggregate file.
+Verify the launcher's embedded digest, the dedicated checksum and aggregate entry
+all identify the same `.run` bytes. Recheck archive hashes, extraction, preserved
+settings and safe failure paths. Any source or documentation change requires
+regenerating the package, launcher and all checksums together.
+
+Tagging, uploading and publishing require separate authorization. Once authorized,
+publish only the verified public asset set in the same release. Keep 0.1.0 assets
+unchanged. Verify the hosted downloads and GitHub asset digest, then test the
+actual published one-command workflow against the fresh-system acceptance criteria
+before replacing the front-page install command or describing it as ready. The
 launcher handles the download automatically; recipients never need to make the
 source installer executable. A checksum binds the payload to the launcher;
 it is not an independent signature if the publication account is compromised.
@@ -57,6 +89,10 @@ Check payload integrity/extraction, preserved profiles, uninstall behavior on fi
 
 Reports should describe the supported environment and reproducible behavior without private data. Separate observed results from hypotheses. Credit borrowed code precisely and preserve its required notices. A link to related work is not a claim of code reuse, endorsement or partnership.
 
-Before publication: settle licensing/provenance, verify the real release URL and document fresh-system test results. Do not invent a download command, first-in-the-world claim, universal compatibility claim or performance guarantee.
+Before publication: settle licensing/provenance and record available validation
+results and pending acceptance tests. After separately authorized hosting, verify
+the real release URL and record the actual fresh-system test results. Do not
+invent a working download command, first-in-the-world claim, universal
+compatibility claim or performance guarantee.
 
 The public one-command installation must meet the [release acceptance criteria](installation.md#release-acceptance) before being described as ready. Dependency downloads, the complete production build, startup and Alt+Z setup belong to that command; asking recipients to finish setup manually does not meet the requirement.
