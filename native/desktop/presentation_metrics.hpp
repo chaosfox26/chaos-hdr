@@ -9,7 +9,7 @@
 
 namespace desktop_metrics {
 inline int64_t now(){return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();}
-struct Sample {int64_t committed,submitted,presented;};
+struct Sample {int64_t committed,submitted,presented;KWin::PresentationMode mode;};
 struct State {
     bool enabled=true;
     bool traceMode=false;
@@ -40,8 +40,13 @@ struct State {
                 {"p99_ms",values[std::min(values.size()-1,size_t(values.size()*.99))]},
                 {"max_ms",values.back()},{"samples",double(values.size())}};
         };
+        QJsonObject modes;
+        for(const auto& sample:samples){
+            const char* key=sample.mode==KWin::PresentationMode::AdaptiveSync?"adaptive-sync":sample.mode==KWin::PresentationMode::AdaptiveAsync?"adaptive-async":sample.mode==KWin::PresentationMode::Async?"async":"vsync";
+            modes[key]=modes[key].toInt()+1;
+        }
         auto frame=stats(intervals);double mean=frame["mean_ms"].toDouble();
-        return {{"enabled",enabled},{"presented_frames",double(samples.size())},{"displayed_frame_interval",frame},
+        return {{"enabled",enabled},{"presented_frames",double(samples.size())},{"presentation_modes",modes},{"displayed_frame_interval",frame},
             {"displayed_fps",mean>0?1000/mean:0},{"kde_commit_to_presentation",stats(latency)},
             {"kde_prepaint_to_presentation",stats(queue)},
             {"scope","Actual KWin presentation feedback for distinct observed target-surface commits; excludes game input and rendering before KDE receives the commit. Not isolated HDR overhead."}};
@@ -52,8 +57,8 @@ class Feedback final : public KWin::PresentationFeedback {
     int64_t commit,submitted;
 public:
     Feedback(const std::shared_ptr<State>& s):state(s),commit(s->latestCommit),submitted(now()){}
-    void presented(KWin::OutputFrame*,std::chrono::nanoseconds timestamp,KWin::PresentationMode,KWin::PresentationFeedbackFlags)override{
-        if(auto s=state.lock();s&&s->enabled&&s->samples.size()<20000)s->samples.push_back({commit,submitted,timestamp.count()});
+    void presented(KWin::OutputFrame*,std::chrono::nanoseconds timestamp,KWin::PresentationMode mode,KWin::PresentationFeedbackFlags)override{
+        if(auto s=state.lock();s&&s->enabled&&s->samples.size()<20000)s->samples.push_back({commit,submitted,timestamp.count(),mode});
     }
 };
 }

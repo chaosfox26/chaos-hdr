@@ -1662,9 +1662,10 @@ missing glyphs into the overlay atlas. The native Qt companion supports complex
 text shaping and platform accessibility. Reduced motion retains the static brand
 and changes transitions to immediate visibility updates.
 
-Producer readiness is tested before direct queue submission; an unfinished
-producer is passed through. Direct submission also checks its own prior fence
-without a CPU wait. Initial GPU setup is completed asynchronously before the
+Producer completion is synchronized by the existing imported GPU fence, without
+a separate CPU readiness poll. Direct submission checks its own prior fence
+without a CPU wait; a pending job retains the last valid HDR output rather than
+alternating with SDR. Initial GPU setup is completed asynchronously before the
 first converted frame. The completion-gated retirement described below preserves
 GPU/GL synchronization; deleting live resources merely to avoid a wait is unsafe.
 Actual driver-hang recovery is not claimed by the software fault checks.
@@ -1770,3 +1771,75 @@ and verifies that supported international glyphs survive subsequent rebuilds.
 The combined clipboard/control check refreshes its layout snapshot after a
 profile change; otherwise its cached slider coordinates can target a different
 control once the profile section changes height.
+## Temporary GPU readiness gaps
+
+The 0.4.0 recovery checks could draw the original SDR window when either the
+previous conversion or the next producer fence was briefly pending. Repeated
+readiness gaps could therefore alternate HDR and SDR brightness without a
+reported processing error, including with the sidebar closed.
+
+The current source keeps the last valid converted output during these gaps.
+OpenGL retains that output until the next conversion is ready to be submitted;
+the existing release semaphore is signaled after its final read and before the
+next Vulkan submission. Cached output keeps the HDR/SDR interpretation of its
+actual conversion. It is invalidated when the GPU context is released. Before
+the first valid result, unsupported inputs and disabled processing still use the
+ordinary window path. The existing queue timeout and completion-gated retirement
+remain active. A readiness gap repeats an older image; it does not create a new
+frame queue, CPU wait, image copy or HDR pass.
+
+Isolated synthetic pixel checks reproduced the SDR brightness switch for both
+pending conditions and verified stable HDR output with the correction. Temporary
+and persistent completion failures, device-failure simulation, unexpected unload,
+quiet-frame recovery and normal controls/occlusion passed with Vulkan validation.
+Matched local combined-processing medians were 0.269120 to 0.268768 ms at 1440p
+and 0.447872 to 0.447264 ms at 4K with the sidebar closed. These are GPU processing
+times from this synthetic comparison, not game input-to-display latency or proof
+that every source of flicker is fixed. The user subsequently confirmed that the
+observed game flicker stopped with this correction.
+
+## Fresh producer frames without additional buffering
+
+The follow-up removes the duplicate producer-fence CPU poll. Vulkan already
+imports that fence and waits on it before accessing the submitted game image.
+An unfinished producer can therefore proceed through the existing GPU dependency
+instead of selecting an older HDR result simply because a zero-time CPU poll
+ran too early. The obsolete polling helper and its helper-only fixture were
+removed. Previous HDR submission completion still gates command-buffer reuse,
+input-cache eviction and retained input/release-point replacement. There is no
+additional conversion job, output image, frame copy, blending, processing pass
+or normal-frame pacing timer. A genuinely busy previous HDR job can still repeat
+the last output; low processing cost does not guarantee a fresh image at every
+display deadline.
+
+A private two-command-resource prototype exercised actual overlapping submissions
+without validation errors. It was not selected for production: overlap adds
+resource-lifetime obligations and was unnecessary in the measured game samples.
+The simpler route preserves the existing single-job ownership and eviction rules.
+
+Private bounded numeric instrumentation compares the existing flicker correction
+with producer synchronization through the GPU, in baseline/candidate/candidate/
+baseline order. It records GPU processing, current-commit presentation feedback,
+pending-resource counts and older-output reuse. Capture and window/input
+inventories remain compiled out in these temporary live timing builds. Normal
+production disables diagnostic timing again. Samples do not simulate physical
+input or establish end-to-end latency, and no observed repeat in a short sample
+is not a guarantee against repeats under heavier load.
+
+The 2560x1440 live combined-processing comparison, with sharpening at 40% and the
+sidebar closed, measured baseline/candidate medians of 0.268832/0.268800 ms and
+p99 values of 0.271776/0.271584 ms across 1,970/1,980 conversion samples. Neither
+sample reused an older output. Current-commit presentation p95 varied between
+2.44 and 2.50 ms in the candidate, versus 2.46 and 2.49 ms in the baseline;
+this does not establish an improvement. Candidate sharpening-only processing
+measured 0.022240 ms median. The matched synthetic moving-fixture 4K comparison
+with Vulkan validation enabled measured 0.446560/0.444512 ms median with the
+sidebar closed; its virtual output used VSync. These short local measurements
+support no material regression, rather than a universal speed or latency claim.
+Normal controls, synthetic sharpening reference pixels and four simulated
+recovery conditions are checked separately from timing measurements.
+
+KWin presentation feedback reported Adaptive Sync in the user's current game
+setup with HDR both enabled and disabled. Both outputs retain Automatic VRR;
+no global refresh-policy override or KWin scheduling change is needed. Development
+presentation samples now retain the actual presentation mode for this check.

@@ -10,7 +10,6 @@
 #include <cstring>
 #include <stdexcept>
 #include <unistd.h>
-#include <poll.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <linux/dma-buf.h>
@@ -322,12 +321,3 @@ void DesktopGPU::quarantine(){if(auto app=QCoreApplication::instance())app->setP
 #ifdef TRUEHDR_DEVELOPMENT
 void DesktopGPU::testCompletion(int mode){impl->completionTest=mode;}
 #endif
-bool DesktopGPU::producerReady(const DmaInput& input){
-    int fd=input.acquireFd;bool owned=false;
-    if(fd<0){dma_buf_export_sync_file request{};request.flags=DMA_BUF_SYNC_READ;
-        if(ioctl(input.fd[0],DMA_BUF_IOCTL_EXPORT_SYNC_FILE,&request)!=0)return false;
-        fd=request.fd;owned=true;}
-    pollfd pending{fd,POLLIN,0};int result=poll(&pending,1,0);
-    if(owned)close(fd);
-    return result==1&&(pending.revents&POLLIN)&&!(pending.revents&(POLLERR|POLLNVAL));
-}

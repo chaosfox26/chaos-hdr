@@ -107,8 +107,19 @@ when it owns the operation lock.
 The active sidebar allocates a texture covering its controls, popups and cursor,
 with damage bounded to that part of its output. Direct DMA-BUF processing does
 not allocate the diagnostic capture texture. Unsuitable alpha surfaces are left
-unchanged. Producer readiness and the preceding GPU job are checked without
-waiting before a direct submission; an unfinished frame is passed through.
+unchanged. The preceding HDR job is checked without a CPU wait before reusing
+its command resources. The submitted producer fence is imported into the
+existing Vulkan semaphore wait; a pending producer is not rejected by a separate
+CPU poll. If the preceding HDR job is unfinished, the last valid HDR output is
+redrawn with its original color interpretation. OpenGL releases that output only
+before the next conversion, after its final read. Before the first valid result,
+the ordinary window path remains available. This retains one conversion job and
+one output image, with no additional frame queue, copy or processing pass.
+
+KWin retains presentation and VRR policy control. The effect does not override
+refresh timing, force VRR or add a frame pacing timer. Development presentation
+feedback records KWin's actual presentation mode; a configured Automatic policy
+alone does not prove that adaptive presentation is active.
 
 GPU cleanup polls the last submitted Vulkan fence and a GL fence inserted only
 at retirement. The source buffer and its release point remain retained until

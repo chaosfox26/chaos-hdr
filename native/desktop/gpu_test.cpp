@@ -14,19 +14,9 @@
 #include <cstdlib>
 #include <algorithm>
 #include <cmath>
-#include <unistd.h>
 #include <chrono>
 #include <thread>
 int main(int argc,char** argv){
-    if(argc==2&&std::string(argv[1])=="--readiness"){
-        int pipefd[2];if(pipe(pipefd))return 1;
-        DesktopGPU::DmaInput input;input.acquireFd=pipefd[0];auto start=std::chrono::steady_clock::now();
-        for(int n=0;n<1000;++n)if(DesktopGPU::producerReady(input))return 2;
-        if(std::chrono::steady_clock::now()-start>std::chrono::milliseconds(100))return 3;
-        char data=1;if(write(pipefd[1],&data,1)!=1||!DesktopGPU::producerReady(input))return 4;
-        close(pipefd[0]);close(pipefd[1]);if(DesktopGPU::producerReady(input))return 5;
-        std::puts("Producer readiness: unready, ready and invalid descriptors passed without waiting.");return 0;
-    }
     QSurfaceFormat format;format.setRenderableType(QSurfaceFormat::OpenGLES);format.setVersion(3,2);QSurfaceFormat::setDefaultFormat(format);
     QGuiApplication app(argc,argv);
     if(argc<2||argc>6)return 2;

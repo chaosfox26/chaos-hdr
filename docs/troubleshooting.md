@@ -106,7 +106,7 @@ activation marker rather than merely the source file's version.
 ## Motion, fonts or text navigation
 
 If text and controls turn into black rectangles while the lightning remains
-visible, update to 0.4.2. It fixes unsupported emoji fonts invalidating the
+visible, update to 0.4.2 or later. It fixes unsupported emoji fonts invalidating the
 sidebar's font texture and protects font uploads from shared graphics state.
 Characters without a supported outline font may still use a missing-character
 symbol; they should no longer prevent the rest of the controls from rendering.

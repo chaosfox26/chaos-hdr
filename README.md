@@ -70,9 +70,8 @@ title effects are animated.
 
 With **HDR and sharpening enabled**, the tested implementation measured the
 following median GPU times. These local synthetic-scene tests recorded about
-300 completed frames per mode on October 23, 2026 using 0.4.0. The 0.4.2 font
-fix leaves the HDR processing and shaders unchanged; these timings have not
-been remeasured for 0.4.2.
+300 completed frames per mode on October 23, 2026 using 0.4.0. This table retains
+that historical baseline; it is not a fresh measurement of every 0.4.3 mode.
 
 | Resolution | Processing, sidebar closed | Processing, sidebar open | Overlay drawing, sidebar open |
 |---|---:|---:|---:|
@@ -86,24 +85,30 @@ or a guarantee for every GPU and game. See [performance and testing](docs/perfor
 for measurement scope and the [0.4.0 results](docs/releases/0.4.0.md) for the
 baseline comparison and recovery tradeoffs.
 
-## 0.4.2 — overlay rendering fix
+The **0.4.3** follow-up measured **0.269 ms** median GPU processing in the live
+1440p game comparison, and **0.445 ms** in a separate 4K moving-fixture check
+with Vulkan validation enabled, both with the sidebar closed. Settings and test
+conditions differ between those runs and the historical table. The matched
+baseline comparisons showed no material regression. See the [0.4.3 results](docs/releases/0.4.3.md).
+
+## 0.4.3 — stable HDR frame handling
 
 A full-height, translucent Alt+Z sidebar with neon lettering, animated
 lightning, smooth transitions and independent HDR and sharpening controls.
 The exposed desktop stays usable, and KDE screenshots can include the open
 sidebar. Optional reduced motion and accessible native controls are under **More**.
 
-Includes the 0.4.0 improvements to display tracking, settings persistence, update
-rollback and GPU-resource cleanup. Matched local tests measured approximately
-0.27 ms of GPU processing at 1440p and 0.49 ms at 4K. See the [release notes](docs/releases/0.4.0.md)
-for results, limitations and the cold-rebuild tradeoff.
+Fixes brightness flicker caused by drawing the original SDR image during a
+temporary GPU readiness gap. Producer completion uses the existing GPU fence
+without a duplicate CPU poll. An unfinished HDR job retains the last valid HDR
+image until processing can resume. No additional frame queue, image copy or
+HDR pass is introduced; a repeated image can still delay visible new content.
 
-**[Download the latest packaged installer](https://github.com/chaosfox26/chaos-hdr/releases/latest/download/Chaos-HDR-CachyOS.run)** · [0.4.2 release notes](docs/releases/0.4.2.md)
+**[Download the latest packaged installer](https://github.com/chaosfox26/chaos-hdr/releases/latest/download/Chaos-HDR-CachyOS.run)** · [0.4.3 release notes](docs/releases/0.4.3.md)
 
-0.4.2 fixes black rectangles replacing the sidebar's text and controls when
-an unsupported emoji font is selected or shared graphics state disrupts a font
-upload. Font rebuilding now preserves the working fonts if a fallback fails.
-The HDR processing path is unchanged.
+Preserves the 0.4.2 font-rendering correction, existing picture controls and
+GPU recovery safeguards. KWin retains VRR control; live presentation feedback
+confirmed Adaptive Sync with HDR on and off in the tested setup.
 Fresh-system installation and new-login acceptance remain unverified.
 
 <p align="center"><img src="docs/images/neon-divider.svg" alt="" width="900" height="18"></p>

@@ -56,7 +56,7 @@ __TRUEHDR_ARCHIVE__
 SOURCE_FILES = (
     '.gitignore','AGENTS.md','CMakeLists.txt','README.md','Chaos HDR development.md','THIRD_PARTY_NOTICES.rst',
     'docs/installation.md','docs/user-guide.md','docs/architecture.md','docs/compatibility.md',
-    'docs/performance.md','docs/privacy.md','docs/troubleshooting.md','docs/contributing.md','docs/credits.md','docs/releases/0.2.0.md','docs/releases/0.4.0.md','docs/releases/0.4.1.md','docs/releases/0.4.2.md',
+    'docs/performance.md','docs/privacy.md','docs/troubleshooting.md','docs/contributing.md','docs/credits.md','docs/releases/0.2.0.md','docs/releases/0.4.0.md','docs/releases/0.4.1.md','docs/releases/0.4.2.md','docs/releases/0.4.3.md',
     'docs/images/chaos-hdr-sidebar.png','docs/images/chaos-hdr-title.svg',
     'docs/images/download-installer.svg','docs/images/user-guide.svg','docs/images/neon-divider.svg',
     'bootstrap.sh','uninstall.sh','github-install.sh.in','desktop.py','desktop_probe.py','displays.py','install.py',

@@ -88,10 +88,10 @@ build the full production implementation, register and start its services, and
 configure Alt+Z without manual file placement or additional setup commands.
 Normal system authentication for prerequisite packages may still be required.
 
-0.4.2 corrects sidebar font rendering while preserving the HDR processing path.
-The fix passed font-upload and rollback checks on OpenGL and OpenGL ES,
-isolated KDE interaction checks and visual verification on the existing
-KWin 6.8.1 desktop, including closing and reopening the sidebar. Fresh-system
+0.4.3 corrects temporary SDR/HDR brightness alternation while preserving the
+0.4.2 font fix. The frame-handling correction passed isolated KDE controls,
+pixel and simulated recovery checks, followed by a live timing and Adaptive
+Sync comparison on the existing KWin 6.8.1 desktop. Fresh-system
 installation, a new-login startup check and a complete installation from the
 hosted release remain unverified. Local extraction and mocked updater checks
 are not substitutes for those results.

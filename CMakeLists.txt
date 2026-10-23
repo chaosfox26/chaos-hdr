@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(truehdr_linux VERSION 0.4.2 LANGUAGES CXX)
+project(truehdr_linux VERSION 0.4.3 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 option(TRUEHDR_DEVELOPMENT "Enable development-only controls and fixtures" OFF)
 option(TRUEHDR_TESTS_ONLY "Build portable native checks without desktop integration" OFF)
