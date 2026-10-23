@@ -1,3 +1,17 @@
+<p align="center">
+  <a href="README.md"><img src="docs/images/chaos-hdr-title.svg" alt="Chaos HDR — home" width="435" height="90"></a>
+</p>
+
+<p align="center">
+  <a href="README.md">Home</a> ·
+  <a href="docs/installation.md">Install</a> ·
+  <a href="docs/user-guide.md">User guide</a> ·
+  <a href="README.md#documentation">All docs</a> ·
+  <a href="https://chaosfox26.github.io/chaos-hdr/">Website</a>
+</p>
+
+<p align="center"><img src="docs/images/neon-divider.svg" alt="" width="900" height="18"></p>
+
 # Chaos HDR development
 
 The [front page](README.md) links the [user guide](docs/user-guide.md),

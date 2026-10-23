@@ -1,6 +1,18 @@
-# Installation and removal
+<p align="center">
+  <a href="../README.md"><img src="images/chaos-hdr-title.svg" alt="Chaos HDR — home" width="435" height="90"></a>
+</p>
 
-[Back to Chaos HDR](../README.md)
+<p align="center">
+  <a href="../README.md">Home</a> ·
+  <strong>Install</strong> ·
+  <a href="user-guide.md">User guide</a> ·
+  <a href="../README.md#documentation">All docs</a> ·
+  <a href="https://chaosfox26.github.io/chaos-hdr/">Website</a>
+</p>
+
+<p align="center"><img src="images/neon-divider.svg" alt="" width="900" height="18"></p>
+
+# Installation and removal
 
 ## Requirements
 

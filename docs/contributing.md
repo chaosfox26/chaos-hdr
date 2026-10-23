@@ -1,6 +1,18 @@
-# Contributing and release preparation
+<p align="center">
+  <a href="../README.md"><img src="images/chaos-hdr-title.svg" alt="Chaos HDR — home" width="435" height="90"></a>
+</p>
 
-[Back to Chaos HDR](../README.md)
+<p align="center">
+  <a href="../README.md">Home</a> ·
+  <a href="installation.md">Install</a> ·
+  <a href="user-guide.md">User guide</a> ·
+  <a href="../README.md#documentation">All docs</a> ·
+  <a href="https://chaosfox26.github.io/chaos-hdr/">Website</a>
+</p>
+
+<p align="center"><img src="images/neon-divider.svg" alt="" width="900" height="18"></p>
+
+# Contributing and release preparation
 
 Chaos HDR's original code and documentation are licensed under [GNU GPL version 2 only](../LICENSE) (`GPL-2.0-only`). Contributions must be compatible with that license, with provenance and any upstream notices preserved. Third-party components keep their own licenses. The KWin/NGX combined-binary compatibility question remains unresolved; consult [third-party notices](../THIRD_PARTY_NOTICES.rst) before redistribution. This repository's license does not grant rights to NVIDIA's proprietary components.
 
@@ -15,6 +27,12 @@ Chaos HDR's original code and documentation are licensed under [GNU GPL version 
 - No first-party telemetry, account scanning or production frame/input recording.
 
 ## Repository artwork
+
+Public guides, release notes, the development reference and the website's
+maintainer guide share the README's title and neon divider. Keep the compact
+header navigation consistent, with paths relative to each document and the
+current guide shown in bold. Keep page titles and instructions as selectable
+text; preserve GitHub's native reading layout and heading anchors.
 
 The README wordmark is a self-contained SVG using outlines from the bundled
 Audiowide font. Its letter faces stay sharp above a separate neon glow, and its
