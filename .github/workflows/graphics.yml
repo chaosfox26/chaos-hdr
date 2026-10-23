@@ -1,0 +1,25 @@
+name: Isolated KDE graphics checks
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  graphics:
+    if: github.ref == 'refs/heads/main'
+    environment: graphics-validation
+    runs-on: [self-hosted, linux, chaos-hdr-test]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          clean: false
+      - name: Build development fixtures
+        run: .venv/bin/python -B prepare_desktop.py --developer-checks
+      - name: Synthetic windows and private desktop
+        run: CHAOS_HDR_TEST_HEIGHT=1080 CHAOS_HDR_TEST_OUTPUTS=2 .venv/bin/python -B desktop_probe.py --gpu-input --controller --selection --watchdog --occlusion --regional-input --overlay --sdr-pixels
+      - name: GPU retirement and recovery
+        run: |
+          .venv/bin/python -B desktop_probe.py --gpu-input --audit-gpu-retirement
+          .venv/bin/python -B desktop_probe.py --gpu-input --audit-gpu-retirement --gpu-fault-device
+          .venv/bin/python -B desktop_probe.py --gpu-input --audit-gpu-retirement --gpu-fault-unload
+          .venv/bin/python -B desktop_probe.py --gpu-input --audit-gpu-retirement --gpu-fault-idle

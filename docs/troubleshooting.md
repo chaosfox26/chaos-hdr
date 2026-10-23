@@ -53,7 +53,7 @@ alone does not establish conversion for every application.
 
 ## Controls and screenshots
 
-Alt+Z can conflict with another shortcut registration. The installer registers the existing shortcut helper. The panel takes keyboard/mouse input while open. Screenshot shortcuts may therefore be blocked or conflict with game input; close the panel for normal screenshot-tool use. This remains a known issue, not a completed handoff feature.
+Alt+Z can conflict with another shortcut registration. The installer registers the existing shortcut helper. The sidebar should leave the exposed taskbar clickable and allow KDE screenshot shortcuts. Spectacle's region selector takes input priority even over the sidebar. If an older installation blocks these interactions, rebuild or update to the version containing regional input handling. For a capture problem, report the shortcut, capture tool and whether the problem occurs while selecting or only in the saved image.
 
 ## Flicker, brightness or overlapping windows
 
@@ -65,6 +65,36 @@ Check KDE HDR and configured peak brightness. The current engine accepts 400–2
 
 Keep the workload comparable and distinguish game loading/shader compilation from effect execution and presentation waits. A loaded DLSS library does not prove it is executing every frame. See [measurement guidance](performance.md).
 
+## GPU recovery requires signing out
+
+This message means Chaos HDR could not confirm that GPU resources were safe to
+release. It stops processing and retains those resources instead of repeatedly
+rebuilding. The setting is shared across effect reloads in the current compositor
+session; changing profiles or updating the effect will not clear it. Save your
+work, then sign out of KDE and back in when convenient. Your picture settings
+are preserved. Chaos HDR never signs you out or restarts the compositor itself.
+
+Temporary completion delays can recover automatically. A driver hang can still
+stall the shared GPU and KWin before the recovery timer runs. If the desktop is
+unresponsive, this safeguard cannot guarantee that controls remain usable.
+
 ## Removal
 
 Run `~/.local/bin/chaos-hdr-uninstall`. If the registration is missing, use `bash uninstall.sh` inside the project. Stop/unload failures retain required files; retry after resolving the reported problem or logging out. `--purge` permanently deletes the entire project and settings. See [removal details](installation.md).
+
+## Interrupted updates
+
+The 0.4.0 updater builds before activation and retains a private recovery journal.
+On restart it reconciles an interrupted operation under the operation lock. If
+restoring the previous build also fails, it retains that journal and backup;
+resolve the reported desktop/build incompatibility and retry. Do not delete the
+backup while recovery is pending. Installed version reporting uses the successful
+activation marker rather than merely the source file's version.
+
+## Motion, fonts or text navigation
+
+Use More → Reduce motion to stop the animated background and title. Use
+More → Accessible controls for native text input, complex scripts and the
+platform accessibility interface. Missing characters in the overlay can require
+an installed font covering that script. Clipboard helpers inherit the current
+Wayland session; a timed-out paste leaves the editor unchanged.

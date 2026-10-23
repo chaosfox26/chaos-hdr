@@ -43,22 +43,25 @@ def install():
             'Environment=QT_QPA_PLATFORM=wayland\nRestart=on-failure\nRestartSec=2\nTimeoutStopSec=5\n'
             '[Install]\nWantedBy=graphical-session.target\n')
     subprocess.run(['systemctl', '--user', 'daemon-reload'], check=True)
-    subprocess.run(['systemctl', '--user', 'enable', '--now', *specs], check=True)
     DESKTOP.parent.mkdir(parents=True, exist_ok=True)
     DESKTOP.write_text('[Desktop Entry]\nType=Application\nName=Chaos HDR\nComment=Game HDR and sharpening controls\n'
-                       f'Exec="{panel}" "{ROOT}/profile.json"\nIcon=video-display\nTerminal=false\nCategories=Game;\n')
+                       f'Exec="{panel}" "{ROOT}/profile.json"\nIcon=video-display\nTerminal=false\nCategories=Game;\nActions=Accessible;\n'
+                       f'\n[Desktop Action Accessible]\nName=Accessible controls\nExec="{panel}" "{ROOT}/profile.json" --accessible\n')
+    subprocess.run(['systemctl', '--user', 'enable', '--now', *specs], check=True)
     UNINSTALL_COMMAND.parent.mkdir(parents=True,exist_ok=True)
     if not UNINSTALL_COMMAND.is_symlink():UNINSTALL_COMMAND.symlink_to(ROOT/'uninstall.sh')
     atomic_write(SETTINGS,json.dumps({'route':'desktop'})+'\n')
-    from desktop import start,refresh_display
-    start();refresh_display()
+    from desktop import start
+    start()
+    updates=ROOT/'output/updates';updates.mkdir(parents=True,exist_ok=True,mode=0o700)
+    atomic_write(updates/'installed-release.json',json.dumps(info['release'])+'\n')
     old=Path.home()/'.local/lib/qt6/plugins/kwin/effects/plugins/truehdr_desktop.so'
     if old.is_symlink() and old.resolve().is_relative_to(ROOT):old.unlink()
     print('Installed Chaos HDR. KDE filtering starts automatically; Alt+Z opens controls. Uninstall: ~/.local/bin/chaos-hdr-uninstall. No game was launched.')
 
 
 def uninstall():
-    transient=('chaos-hdr-update','chaos-hdr-release-check')
+    transient=('chaos-hdr-update','chaos-hdr-release-check','chaos-hdr-recovery')
     for name in transient:
         subprocess.run(['systemctl','--user','stop',name],check=False,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
     services=('truehdr-worker','truehdr-native-worker','truehdr-overlay-controls','truehdr-desktop')

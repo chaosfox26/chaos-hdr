@@ -25,6 +25,7 @@ Sources for translation routes: [DXVK](https://github.com/doitsujin/dxvk) and [v
 - Single-plane RGB input accepted by the import path and driver.
 - Matching buffer/draw dimensions, normal transform and an unmodified source box.
 - An sRGB SDR color description and no unsupported child-surface composition.
+- A fully opaque surface, either without an alpha channel or declaring its full content opaque. Alpha-capable formats alone do not disqualify an opaque application.
 - A compatible NVIDIA/KWin external-memory and synchronization path.
 
 Buffer import can still fail even when basic attributes match. The app reports the fast path as unavailable and leaves that window unchanged. It does not silently use the slower diagnostic capture route. PQ HDR content bypasses SDR conversion; other unsupported color descriptions are also left alone.
@@ -38,3 +39,10 @@ Approval uses the window identity KWin supplies, not a verified executable path.
 No game injection or file modification is performed. That architectural fact is not publisher approval or a guarantee against anti-cheat restrictions. Do not describe the effect as invisible or universally ban-safe.
 
 Useful compatibility reports state GPU/driver/KWin versions, rendering route if known, display scaling, buffer eligibility, and what was observed. Do not post account identifiers or unredacted logs. See [privacy](privacy.md) and [performance testing](performance.md).
+
+The 0.4.0 candidate uses bounded retries for processing failures and reconsiders
+changed buffer descriptors. It does not repeatedly initialize a failing engine
+on every frame. A producer fence that is not ready is bypassed for that frame.
+Driver failure during resource retirement remains a limitation of running inside
+the compositor; required GPU lifetime synchronization is retained. Hard device
+loss must be tested on a disposable graphics session before claiming recovery.

@@ -29,3 +29,13 @@ Do not publish a universal overhead claim from one machine or treat a compositor
 Development fixtures cover approval/removal/reopen, paused/static content, conditional watchdog, idle without heartbeat writes, controls, clipping under overlapping windows and presentation tracing. Production diagnostics are disabled. Detailed build/test procedures are in [contributing](contributing.md). Do not enable a development build on someone’s live desktop as ordinary setup.
 
 Documentation and branding changes should not alter shader arithmetic, queue synchronization, GPU passes or buffering. Claims of improvement require fresh measurements.
+
+## Audit candidate validation
+
+The 0.4.0 candidate removes profile polling from each processed frame, debounces settings persistence outside paint callbacks, and limits the overlay texture and repaint region to the sidebar and active popups. The accepted local 1440p GPU-processing baseline is approximately 0.27 ms. That is a regression reference on the tested system, not an end-to-end latency promise. Recheck both steady state and transitions after changing synchronization or resource lifetimes.
+
+The direct route checks producer readiness and its previous submission without waiting on the compositor thread. Teardown retains resources while polling Vulkan completion and a retirement-only GL fence with zero timeout. No additional per-frame fence, buffer copy or GPU pass is introduced. An unresolved retirement disables processing for the compositor session and retains one context until exit. Software completion-failure tests are distinct from real device-loss or driver-hang tests; the latter require a disposable system with its own GPU.
+
+For matched synthetic comparisons, run `desktop_probe.py --gpu-input --benchmark` in separate baseline and candidate development roots. Set `CHAOS_HDR_TEST_WIDTH` and `CHAOS_HDR_TEST_HEIGHT` to the same dimensions; `CHAOS_HDR_BENCH_FULL=1` includes both independent modes and bypass. `CHAOS_HDR_BENCH_TRANSITIONS=1` adds repeated sidebar motion, effect toggles and forced GPU reinitialization. Keep other GPU jobs out of the comparison and reverse run order between resolutions.
+
+Processing trace rows contain completed conversions, so a readiness bypass or asynchronous initialization is not represented as a conversion cost. Use presentation records and request-to-next-processed-frame timing to examine those gaps; neither is physical input-to-display latency. Forced cold reinitialization is separate from toggling settings with already allocated resources.

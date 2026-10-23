@@ -1,6 +1,7 @@
 DESCRIPTION = 'Create a Chaos HDR source installer with optional personal picture profiles.\n\nDependencies are fetched by bootstrap from their publishers, not redistributed.\nNo game files, account data, screenshots, environment or build caches are packed.\n'
 import argparse
 import hashlib
+import gzip
 import io
 import re
 import json
@@ -38,6 +39,12 @@ tar -xzf "$task_stage/payload.tar.gz" -C "$task_stage/source"
 for task_profile in profile.json profiles.json launch-settings.json window-targets.json; do
     if [[ -e "$task_target/$task_profile" ]]; then rm -f -- "$task_stage/source/$task_profile"; fi
 done
+if [[ $task_extract_only -eq 0 && -x "$task_target/.venv/bin/python" && -f "$task_target/build-desktop/install-manifest.json" ]]; then
+    mkdir "$task_stage/RTX HDR experimental"
+    cp -a "$task_stage/source/." "$task_stage/RTX HDR experimental/"
+    "$task_target/.venv/bin/python" "$task_stage/RTX HDR experimental/local_setup.py" "$task_target" "$task_stage/RTX HDR experimental"
+    exit 0
+fi
 cp -a "$task_stage/source/." "$task_target/"
 if [[ $task_extract_only -eq 1 ]]; then echo "Source extracted; existing profiles preserved."; exit 0; fi
 cd "$task_target"
@@ -49,15 +56,20 @@ __TRUEHDR_ARCHIVE__
 SOURCE_FILES = (
     '.gitignore','AGENTS.md','CMakeLists.txt','README.md','Chaos HDR development.md','THIRD_PARTY_NOTICES.rst',
     'docs/installation.md','docs/user-guide.md','docs/architecture.md','docs/compatibility.md',
-    'docs/performance.md','docs/privacy.md','docs/troubleshooting.md','docs/contributing.md','docs/credits.md','docs/releases/0.2.0.md',
+    'docs/performance.md','docs/privacy.md','docs/troubleshooting.md','docs/contributing.md','docs/credits.md','docs/releases/0.2.0.md','docs/releases/0.4.0.md',
     'bootstrap.sh','uninstall.sh','github-install.sh.in','desktop.py','desktop_probe.py','displays.py','install.py',
-    'package_installer.py','prepare_desktop.py','project.py','sdk.py','test_desktop_watch.py','test_desktop_version.py','test_updates.py','profile.example.json',
-    'updates.py','release.json','native/update_dialog.hpp',
-    'native/panel.cpp','native/profiles.hpp','native/test_profiles.cpp','native/vulkan_hdr.cpp','native/vulkan_hdr.hpp',
+    'package_installer.py','prepare_desktop.py','project.py','sdk.py','test_desktop_watch.py','test_desktop_version.py','test_updates.py','test_install.py','test_package_installer.py','test_deployment.py','profile.example.json',
+    'local_setup.py','deployment.py','updates.py','release.json','native/update_dialog.hpp',
+    'native/panel.cpp','native/accessible_controls.hpp','native/picture_settings.hpp','native/profiles.hpp','native/test_profiles.cpp','native/vulkan_hdr.cpp','native/vulkan_hdr.hpp',
     'native/desktop/CMakeLists.txt','native/desktop/bootstrap.cpp','native/desktop/effect.cpp',
     'native/desktop/effect.json.in','native/desktop/gpu.cpp','native/desktop/gpu.hpp','native/desktop/gpu_test.cpp',
     'native/desktop/input.comp','native/desktop/loader.qml','native/desktop/presentation_metrics.hpp',
     'native/desktop/session.cpp','native/desktop/update_controller.hpp','native/desktop/window_test.cpp',
+    'native/desktop/font_fallback.hpp','native/desktop/overlay_motion.hpp','native/desktop/overlay_style.hpp','native/desktop/overlay_metrics.hpp','native/test_overlay_motion.cpp',
+    'assets/chaos-lightning.png','assets/ARTWORK.json',
+    'vendor/fonts/Barlow-Regular.ttf','vendor/fonts/Barlow-SemiBold.ttf','vendor/fonts/RubikGlitch-Regular.ttf',
+    'vendor/fonts/Audiowide-Regular.ttf','vendor/fonts/OFL-Audiowide.txt',
+    'vendor/fonts/OFL-Barlow.txt','vendor/fonts/OFL-RubikGlitch.txt','vendor/fonts/UPSTREAM.json',
     'vendor/imgui/LICENSE.txt','vendor/imgui/UPSTREAM.txt','vendor/imgui/imconfig.h',
     'vendor/imgui/imgui.h','vendor/imgui/imgui_internal.h','vendor/imgui/imgui.cpp',
     'vendor/imgui/imgui_draw.cpp','vendor/imgui/imgui_widgets.cpp','vendor/imgui/imgui_tables.cpp',
@@ -88,6 +100,7 @@ def build(personal=False, installer_url=None):
         release_url(installer_url)
         if personal:raise ValueError('Personal backups cannot generate a public GitHub installer.')
     files={name:(ROOT/name).read_bytes() for name in SOURCE_FILES}
+    if not (ROOT/'LICENSE').is_file():raise RuntimeError('The public source license is required for packaging.')
     for name in ('LICENSE','LICENSE.txt','COPYING','NOTICE'):
         if (ROOT/name).is_file():files[name]=(ROOT/name).read_bytes()
     privacy_check(files)
@@ -101,11 +114,11 @@ def build(personal=False, installer_url=None):
               'files':{name:hashlib.sha256(data).hexdigest() for name,data in sorted(files.items())}}
     files['INSTALL-MANIFEST.json']=(json.dumps(manifest,indent=2)+'\n').encode()
     payload=io.BytesIO()
-    with tarfile.open(fileobj=payload,mode='w:gz') as archive:
+    with tarfile.open(fileobj=payload,mode='w') as archive:
         for name,data in sorted(files.items()):
             entry=tarfile.TarInfo(name);entry.size=len(data);entry.mode=0o600 if name in ('profile.json','profiles.json','window-targets.json') else 0o755 if name.endswith('.sh') else 0o644
             archive.addfile(entry,io.BytesIO(data))
-    data=payload.getvalue();digest=hashlib.sha256(data).hexdigest()
+    data=gzip.compress(payload.getvalue(),mtime=0);digest=hashlib.sha256(data).hexdigest()
     folder=ROOT/'output/installers';folder.mkdir(parents=True,exist_ok=True)
     name='Chaos-HDR-CachyOS'+('-personal' if personal else '')
     script=folder/(name+'.run');script.write_bytes(HEADER.replace('PAYLOAD_SHA256',digest).encode()+data);script.chmod(0o700 if personal else 0o755)

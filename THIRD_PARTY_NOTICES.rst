@@ -18,6 +18,11 @@ compatibility of that binary remains unresolved by the focused review.
 Dear ImGui is used for the compositor controls. Its MIT license and upstream
 attribution are retained in vendor/imgui/LICENSE.txt and UPSTREAM.txt.
 
+The Barlow, Rubik Glitch and Audiowide font files are unmodified upstream fonts under the
+SIL Open Font License 1.1. Their separate licenses, source revisions and hashes
+are retained in vendor/fonts/. The background lightning artwork was generated
+for Chaos HDR with OpenAI image generation; its provenance is in assets/ARTWORK.json.
+
 KWin's effect interfaces and library carry GPL terms. Qt and KDE Frameworks
 retain their respective upstream terms. They are installed through the system
 package manager rather than copied into this source archive.

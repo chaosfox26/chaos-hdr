@@ -1479,3 +1479,244 @@ into the public source package. No live game is launched for these checks.
 Licensing/provenance review and a fresh supported-OS installation remain release
 gates. The NVIDIA engine is separately licensed; this document does not make it
 open-source or grant rights to distribute a combined KWin/NGX binary.
+
+## KWin status-query compatibility, October 23, 2026
+
+The session controller invokes `desktop.py --attach-only` during attachment.
+KWin exposes `loadedEffects` as a read-only D-Bus property. The setup, stop, and
+private probe paths now read it through `org.freedesktop.DBus.Properties.Get`
+instead of issuing a method-style query that can produce a missing-slot warning.
+The returned string-list handling is unchanged.
+
+The live attachment check returned the already loaded effect without changing
+the loaded-effect list, service process IDs, profile hashes, launch settings, or
+install manifest. It generated no KWin query warning. Six existing version-guard
+checks passed. No compositor or ChaosHDR service restart, effect rebuild, unload,
+game launch, or rendering-path change was needed. Project-local backups and
+validation records are in `output/scratch/warning-cleanup-2026-10-23/`.
+
+## Desktop identity registration, October 23, 2026
+
+The shortcut helper sets `QGuiApplication::desktopFileName` to `truehdr-linux`,
+matching the installed desktop entry without its extension. Qt uses this identity
+when registering with the host portal. The application name and shortcut
+component remain unchanged. Installation writes that desktop entry before
+starting services, so registration can resolve it on a fresh installation.
+The isolated installation test verifies that ordering and preserves existing
+profile contents while substituting all service operations.
+
+Only the shortcut helper needs rebuilding for this change. The effect, its
+bootstrap library, and the session controller are separate build artifacts.
+Backups and validation records are kept in
+`output/scratch/warning-cleanup-pass2-2026-10-23/`.
+
+
+## Chaos sidebar redesign and independent controls, October 23, 2026
+
+The unpublished sidebar uses a compact left-side layout, a Rubik Glitch wordmark,
+Barlow text, magenta and blue accents, and a cached generated lightning texture.
+Asset provenance is in assets/ARTWORK.json; font licenses accompany vendor/fonts.
+Opening and closing use reversible eased slide motion. Label and slider tooltips
+replace persistent descriptions; the main content scrolls only when necessary.
+The HDR and Sharpening section toggles are independent. Missing values in older
+profiles default to enabled. The legacy master switch remains compatible.
+
+With both effects enabled the original preparation and NVIDIA path remains.
+Sharpening alone writes the existing output from the preparation shader and skips
+NVIDIA conversion. Both disabled bypass processing. The overlay animation and
+texture drawing stop when closed. Private matched 2560-by-1440 tests measured
+about 0.269 ms for preparation plus NVIDIA processing, matching the prior version;
+the sidebar's separate GPU draw was about 0.023 ms while open. These are fixture
+GPU timings, not a fixed addition to end-to-end input latency. Private comparison
+records remain in output/scratch/overlay-polish-2026-10-23/measurements.
+
+## Regional input, screenshots and desktop panels, October 23, 2026
+
+The overlay no longer registers as KWin's active full-screen effect and no longer
+uses the global keyboard/mouse grabs. A scoped InputEventFilter runs at Effects
+priority, after KDE global shortcuts and window selection. Only the currently
+visible ImGui window regions claim pointer presses and wheel events. Ownership
+of a pressed button persists through release, so slider drags and external drags
+do not leak their release to another recipient. Keyboard ownership follows
+sidebar clicks, clears when another window activates, and retains paired key
+releases. Meta shortcuts and Print pass through. The UI cursor is drawn above the controls and the native cursor is hidden with
+a balanced hide/show pair only while the UI owns it on that output. Pointer constraints are temporarily
+disabled while controls are open and restored on close. The filter unregisters
+when the sidebar is closed and all claimed input is released.
+
+The panel covers the full output height, including the taskbar beneath its left
+edge. Exposed taskbar regions retain normal input. It retains 74% background
+opacity with brighter muted text. Spectacle's full-screen selection surface takes
+priority over sidebar input and rendering; Spectacle's preceding capture includes
+the sidebar. This avoids drawing a second live panel over the frozen selection
+image. Screen locking immediately hides controls and releases input state.
+
+Private input checks use a virtual input device inside the isolated compositor;
+no real game is launched or sent input. A layer-shell dock fixture checks input ownership
+under the full-height sidebar and untouched exposed dock pixels. The regional probe requires
+LayerShellQt development headers, Spectacle and ImageMagick. These are test-only
+requirements. Virtual-device support and input diagnostics are compiled out of
+normal builds. The input/transparency revision leaves the GPU conversion source
+and shader unchanged. Backups and validation are under
+output/scratch/overlay-input-2026-10-23/.
+
+
+## Cursor layering and transparent repaint correction, October 23, 2026
+
+The initial regional-input revision incorrectly relied on an effects cursor
+shape override without mouse interception. KWin selects that override only
+while an effect owns mouse interception. In addition, the software cursor can
+be composited before this effect's final panel draw. Draw the UI cursor in the
+panel itself and balance KWin cursor hiding only while the pointer belongs to
+controls on their output. Moving outside, changing output, starting Spectacle
+selection, closing controls or unloading the effect releases that ownership.
+
+The earlier attempt to yield to any visible popup was too broad for desktop
+hover popups and could make the panel disappear. Only Spectacle's active
+full-screen selection window suppresses panel rendering now. The sidebar keeps
+its full-height geometry regardless of desktop panel visibility. Opening the
+sidebar no longer registers a full-screen effect or grabs all desktop input.
+
+Before rendering a transparent panel, add its output to pre-paint damage so the
+underlying image is refreshed. Disable inherited OpenGL scissoring before the
+transparent texture clear and final composition, then restore the prior scissor
+and blending state. Otherwise a previous scene clip can leave stale texture
+pixels or cut off the final overlay. These changes run only while the panel is
+visible or moving; the closed-panel HDR conversion path is unchanged.
+
+The private regional probe tests cursor pixels in actual Spectacle captures,
+including with a frozen producer and an intentionally inherited 8-by-8 clip.
+It also checks full-height panel coverage, exposed dock pixels and input,
+independent controls, screenshot selection and both screenshot shortcuts.
+Validation and the prior production binary are retained under
+output/scratch/overlay-render-fix-2026-10-23/.
+
+## Animated wordmark, October 23, 2026
+
+The header now uses the bundled Rubik Glitch face at 52 pixels, fitted within
+its available width with room for the collapse control and displaced fragments.
+A fixed 58-pixel layout slot prevents animation from moving the picture controls.
+Short deterministic pulses animate magenta/blue channel separation, clipped
+horizontal fragments, small positional jitter and partial opacity changes.
+The title stays readable between pulses and never moves outside its header clip.
+All text is drawn into the existing overlay pass from the cached font atlas;
+there is no additional GPU image pass, frame copy, timer or closed-panel work.
+The cursor, input routing, screenshot handoff and HDR conversion are unchanged.
+
+## Neon wordmark, October 23, 2026
+
+The active header uses Audiowide, an unmodified OFL-licensed font with angular,
+rounded display lettering. Its upstream source and checksum, plus the complete
+license, are bundled alongside the font. The public source package includes both.
+The header retains its fitted width, fixed layout slot and existing glitch pulses.
+Two small rings of low-opacity atlas text provide magenta and blue glow behind
+the pale, brightly tinted letter cores. These quads use the existing font texture
+and overlay draw pass; no blur framebuffer, shader pass or background timer is
+added. The effect is limited to the title and stops with the closed overlay.
+
+## 0.4.0 audit implementation
+
+`deployment.py` journals source files and active artifact links before activation.
+`updates.py` stages the verified source payload, checks source against the release
+tag for Git checkouts, builds it with the canonical runtime root, then activates.
+The operation lock is inherited by the setup subprocess so a surviving child is
+not mistaken for an idle updater. Recovery runs before automatic checks or a new
+operation and preserves the daily network-check limit. Artifact fingerprints now
+cover fonts, artwork, ImGui and build inputs; shader paths point into the immutable
+build directory. `local_setup.py` applies the same staging to an existing packaged
+installation. All backups and build generations stay inside the project.
+
+Picture settings are passed to Vulkan recording in memory. KWin's current output
+metadata selects the effective HDR peak, and changing the window's screen updates
+that selection. `profiles.hpp` uses a write-ahead record for its two-file state;
+slider persistence runs after painting with a short debounce. Profile actions are
+queued outside paint. The capture texture is only allocated for the development
+capture path. Buffer import cache eviction still occurs after the preceding GPU
+job has completed. The sharpening gain remains three times the 0–100% input;
+shader arithmetic and dispatch count are unchanged.
+
+The sidebar damage and texture width cover controls, active popups and the cursor,
+with a small size bucket to avoid allocation churn. Transparent background redraw
+and scissor-state preservation remain necessary. Alpha surfaces are bypassed unless
+the entire surface declares itself opaque. Processing failures retry on a bounded
+backoff; a changed descriptor or explicit Retry can start a fresh attempt.
+
+Clipboard work runs in a native Wayland helper, never as a blocking clipboard
+transfer inside KWin. Access is explicit, text is size-limited, paste is bound to
+the still-active text field and has a timeout. Fontconfig resolves only requested
+missing glyphs into the overlay atlas. The native Qt companion supports complex
+text shaping and platform accessibility. Reduced motion retains the static brand
+and changes transitions to immediate visibility updates.
+
+Producer readiness is tested before direct queue submission; an unfinished
+producer is passed through. Direct submission also checks its own prior fence
+without a CPU wait. Initial GPU setup is completed asynchronously before the
+first converted frame. The completion-gated retirement described below preserves
+GPU/GL synchronization; deleting live resources merely to avoid a wait is unsafe.
+Actual driver-hang recovery is not claimed by the software fault checks.
+
+The clipboard reader yields one event-loop turn before exiting so KSystemClipboard can release its deferred MIME-data lock. Clipboard processing stays outside KWin in a bounded helper. Font fallback atlas rebuilds and status writes are queued outside paint callbacks. The obsolete preview panel was removed; development previews use the same native accessible companion as production.
+
+Async clipboard results are replayed as an ImGui paste gesture with a transient clipboard buffer, preserving normal selection replacement and undo. Modifier key releases explicitly clear the corresponding ImGui modifier. Paste completion is discarded if its original text editor no longer owns focus.
+
+The deferred clipboard lock lifetime is documented by the upstream [KGuiAddons Wayland clipboard implementation](https://github.com/KDE/kguiaddons/blob/master/src/systemclipboard/waylandclipboard.cpp). Integration uses the installed KGuiAddons API rather than copying its implementation.
+
+Display metadata now comes directly from KWin, so the session controller no longer watches the user's output configuration or runs the legacy display-scan helper. The helper remains an explicit local diagnostic; installation and normal controls do not depend on it.
+
+The dialog fixture requests a Qt window-modal dialog with a mapped transient parent. The regression checks KWin's actual modal and transient state, not the legacy window-type enum: KWin's xdg-dialog handler sets modality without changing that enum. Both application approval and reopening are exercised with this real transient GPU surface. See the upstream [xdg-shell implementation](https://github.com/KDE/kwin/blob/master/src/xdgshellwindow.cpp).
+
+
+## Completion-gated GPU retirement
+
+The direct submission path and shader arithmetic are unchanged. An explicit
+submitted flag distinguishes a reset fence from a job actually queued to Vulkan;
+a failed recording must not be mistaken for work that can never finish. The
+source GraphicsBufferRef and SyncReleasePoint are assigned before submission, so
+an exception after queueing cannot discard the producer buffer prematurely.
+
+Retirement moves the context and those references into one retained object.
+Vulkan completion is polled first. A GL fence is then inserted after the previous
+shared-texture operations and flushed once; glClientWaitSync uses a zero timeout.
+Only confirmed completion permits normal destruction. No per-frame GL fence,
+extra copy, queue or command-buffer submission is added. The 20 ms timer exists
+only during retirement. A still-pending active job arms a one-second watchdog;
+retirement has its own one-second deadline. The existing active heartbeat also
+checks completion once per second so a stalled final frame can be noticed without
+further window damage. It introduces no additional healthy-idle timer. This bounds
+our polling, not driver
+API execution time. In particular, vendor feature destruction is opaque.
+
+On unresolved completion or unexpected unload with unfinished resources, the
+retained object is deliberately abandoned until process exit. It has no timers,
+callbacks or destructor registered beyond the effect lifetime. A property on
+QCoreApplication prevents this version of the effect from creating another GPU
+context, including after reload. At most one unresolved context is retained by
+this mechanism. The pre-submit producer check and previous submission fence keep
+normal imported-buffer reuse safe. Healthy cleanup remains asynchronous.
+
+The controller introspects prepareUnload for compatibility with older effects,
+asks the new effect to stop submissions, and polls its completion for up to two
+seconds. Communication failure or an overdue handoff aborts managed unloading.
+Old binaries do not implement the retirement contract; compatibility fallback
+cannot confer the new safeguards on them.
+
+Private test modes simulate pending completion, a completion error, failure
+before submission and failure after submission. They never hang or reset the
+working GPU. Tests cover retained buffers, temporary recovery, bounded polling,
+no rebuild storm, managed and unexpected unload, and quarantine across reload.
+The test override still observes the real fence before overriding the completion
+answer, so the validation layer can retire genuinely finished work on the
+healthy test GPU. Otherwise library cleanup at process exit reports stale
+pending-buffer state created by the simulation itself. These paths and their
+diagnostic state are compiled out of production.
+
+A real GPU hang can already prevent KWin from executing because the direct route
+uses external-memory semaphore waits on the shared GPU. Removing CPU teardown
+waits cannot isolate that dependency. Never fake semaphore completion, release
+unconfirmed resources, reset the live GPU or automatically restart KWin. Vendor-library cleanup at process exit is also outside the retained object
+contract; graceful logout is not guaranteed under a real driver hang. Actual
+hang recovery claims require testing on a disposable system with a separate GPU.
+
+Contracts: [Vulkan fence status](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetFenceStatus.html),
+[Vulkan device loss](https://docs.vulkan.org/spec/latest/chapters/devsandqueues.html#devsandqueues-lost-device),
+and [OpenGL 4.6 sync objects, section 4.1](https://registry.khronos.org/OpenGL/specs/gl/glspec46.core.pdf).

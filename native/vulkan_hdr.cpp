@@ -4,11 +4,8 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
-#include <QJsonDocument>
 #include <QJsonObject>
-#include <sys/stat.h>
 #include <algorithm>
-#include <chrono>
 #include <cstdlib>
 #include <cstdio>
 #include <stdexcept>
@@ -28,8 +25,7 @@ struct VulkanHDR::Impl {
     VkImage input{};VkImageView inputView{};
     std::vector<VkImage> targets;std::vector<VkImageView> targetViews;
     NVSDK_NGX_Handle* handle{};NVSDK_NGX_Parameter* parameters{};bool initialized=false;
-    QString profile=std::getenv("TRUEHDR_PROFILE")?QString::fromLocal8Bit(std::getenv("TRUEHDR_PROFILE")):QString::fromUtf8(TRUEHDR_DEFAULT_PROFILE);
-    struct stat previous{};QJsonObject settings;std::chrono::steady_clock::time_point refreshed{};
+    PictureSettings settings;bool settingsApplied=false;
 #ifdef TRUEHDR_DEVELOPMENT
     VkBuffer captureBuffer{};VkDeviceMemory captureMemory{};void* captureMapping{};bool capturePending=false;
 #endif
@@ -49,21 +45,12 @@ struct VulkanHDR::Impl {
         VkImageMemoryBarrier m{VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER};m.srcAccessMask=src;m.dstAccessMask=dst;m.oldLayout=oldLayout;m.newLayout=newLayout;m.srcQueueFamilyIndex=m.dstQueueFamilyIndex=VK_QUEUE_FAMILY_IGNORED;m.image=image;m.subresourceRange={VK_IMAGE_ASPECT_COLOR_BIT,0,1,0,1};
         fn<PFN_vkCmdPipelineBarrier>("vkCmdPipelineBarrier")(command,VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,0,0,nullptr,0,nullptr,1,&m);
     }
-    void controls(){
-        struct stat current{};auto now=std::chrono::steady_clock::now();
-        bool changed=stat(profile.toLocal8Bit(),&current)==0&&(current.st_ino!=previous.st_ino||current.st_mtim.tv_sec!=previous.st_mtim.tv_sec||current.st_mtim.tv_nsec!=previous.st_mtim.tv_nsec);
-        if(!changed&&now-refreshed<std::chrono::milliseconds(250))return;
-        QFile file(profile);QJsonObject config=settings;if(file.open(QIODevice::ReadOnly))config=QJsonDocument::fromJson(file.readAll()).object();
-        QFile effective(QFileInfo(profile).absolutePath()+"/output/worker-results.json");
-        if(effective.open(QIODevice::ReadOnly)){
-            auto target=QJsonDocument::fromJson(effective.readAll()).object()["last_profile"].toObject();
-            if(target["target_display"]==config["target_display"]&&target["peak_brightness"].isDouble())config["peak_brightness"]=target["peak_brightness"];
-        }
-        if(config!=settings){
-            for(auto pair:{std::pair{"TrueHDR.MaxLuminance",std::clamp(config["peak_brightness"].toInt(1500),400,2000)},std::pair{"TrueHDR.MiddleGray",std::clamp(config["middle_gray"].toInt(50),10,100)},std::pair{"TrueHDR.Contrast",std::clamp(config["contrast"].toInt(),-100,100)+100},std::pair{"TrueHDR.Saturation",std::clamp(config["saturation"].toInt(),-100,100)+100},std::pair{"TrueHDR.DebandingOff",config["debanding"].toBool(true)?0:1}})parameters->Set(pair.first,unsigned(pair.second));
-            settings=config;
-        }
-        previous=current;refreshed=now;
+    void controls(const PictureSettings& config){
+        if(settingsApplied&&settings==config)return;
+        for(auto pair:{std::pair{"TrueHDR.MaxLuminance",config.peak},std::pair{"TrueHDR.MiddleGray",config.middle},
+                       std::pair{"TrueHDR.Contrast",config.contrast+100},std::pair{"TrueHDR.Saturation",config.saturation+100},
+                       std::pair{"TrueHDR.DebandingOff",config.debanding?0:1}})parameters->Set(pair.first,unsigned(pair.second));
+        settings=config;settingsApplied=true;
     }
     ~Impl(){
         if(handle)NVSDK_NGX_VULKAN_ReleaseFeature(handle);
@@ -83,7 +70,7 @@ VulkanHDR::VulkanHDR(VkInstance instance,VkPhysicalDevice physical,VkDevice devi
     auto& s=*impl;s.device=device;s.extent=extent;s.gdpa=gdpa;s.targets=targets;s.input=input;
     auto getMemory=reinterpret_cast<PFN_vkGetPhysicalDeviceMemoryProperties>(gipa(instance,"vkGetPhysicalDeviceMemoryProperties"));getMemory(physical,&s.memory);
     std::wstring libs=QString::fromUtf8(TRUEHDR_RUNTIME_SITE "/nvvfx/libs").toStdWString();const wchar_t* paths[]{libs.c_str()};
-    QString directory=QFileInfo(s.profile).absolutePath()+"/output/vulkan-ngx";QDir().mkpath(directory);auto logs=directory.toStdWString();
+    QString directory=QFileInfo(qEnvironmentVariable("TRUEHDR_PROFILE",QString::fromUtf8(TRUEHDR_DEFAULT_PROFILE))).absolutePath()+"/output/vulkan-ngx";QDir().mkpath(directory);auto logs=directory.toStdWString();
     NVSDK_NGX_FeatureCommonInfo info{};info.PathListInfo={paths,1};info.LoggingInfo={logMessage,NVSDK_NGX_LOGGING_LEVEL_OFF,true};
     ngxChecked(NVSDK_NGX_VULKAN_Init_with_ProjectID("64dc46e1-cd39-4a64-b750-227198d73e75",NVSDK_NGX_ENGINE_TYPE_CUSTOM,"0.1",logs.c_str(),instance,physical,device,gipa,gdpa,&info),"Initialize Vulkan NGX");s.initialized=true;
     ngxChecked(NVSDK_NGX_VULKAN_AllocateParameters(&s.parameters),"Allocate Vulkan controls");
@@ -95,13 +82,13 @@ VulkanHDR::VulkanHDR(VkInstance instance,VkPhysicalDevice physical,VkDevice devi
     for(auto key:{"TrueHDR.InLeft","TrueHDR.InTop","TrueHDR.OutLeft","TrueHDR.OutTop"})s.parameters->Set(key,0u);
     for(auto key:{"TrueHDR.InRight","TrueHDR.OutRight"})s.parameters->Set(key,extent.width);
     for(auto key:{"TrueHDR.InBottom","TrueHDR.OutBottom"})s.parameters->Set(key,extent.height);
-    s.controls();
+    s.controls({});
     std::fprintf(stderr,"TrueHDR: direct Vulkan engine ready, same NVIDIA feature, no CUDA handoff\n");
 }
 VulkanHDR::~VulkanHDR()=default;
 
 void VulkanHDR::record(VkCommandBuffer command,uint32_t index,bool enabled,uint64_t frame){
-    auto& s=*impl;s.controls();if(!enabled)return;
+    auto& s=*impl;if(!enabled)return;
     s.barrier(command,s.input,VK_IMAGE_LAYOUT_GENERAL,VK_IMAGE_LAYOUT_GENERAL,VK_ACCESS_SHADER_WRITE_BIT,VK_ACCESS_SHADER_READ_BIT);
     NVSDK_NGX_Resource_VK in{},out{};in.Resource.ImageViewInfo={s.inputView,s.input,{VK_IMAGE_ASPECT_COLOR_BIT,0,1,0,1},VK_FORMAT_R8G8B8A8_UNORM,s.extent.width,s.extent.height};
     out.Resource.ImageViewInfo={s.targetViews.at(index),s.targets.at(index),{VK_IMAGE_ASPECT_COLOR_BIT,0,1,0,1},VK_FORMAT_A2B10G10R10_UNORM_PACK32,s.extent.width,s.extent.height};out.ReadWrite=true;
@@ -135,3 +122,5 @@ void VulkanHDR::finishCapture(){
     for(auto pair:{std::pair<const char*,uint64_t>{"input.rgba8",0},std::pair<const char*,uint64_t>{"output.rgb10a2",bytes}}){QFile file(directory+"/"+pair.first);if(file.open(QIODevice::WriteOnly))file.write(static_cast<const char*>(s.captureMapping)+pair.second,bytes);}
 #endif
 }
+
+void VulkanHDR::setSettings(const PictureSettings& settings){impl->controls(settings);}

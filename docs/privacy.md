@@ -9,7 +9,8 @@
 - No normal screenshots, saved frames or persistent input/window inventories.
 - The selected GPU image is processed transiently because HDR requires image access.
 - Window captions/identities are used transiently for the application chooser.
-- Explicit app approvals and selected picture profiles are saved locally.
+- Explicit app approvals, selected picture profiles and the reduced-motion preference are saved locally.
+- Copy, cut and paste use an on-demand native clipboard helper on explicit user input; clipboard text is not logged or saved by Chaos HDR.
 - Health/status and settings files use owner-only permissions.
 
 The release checker makes unauthenticated requests to this project's public

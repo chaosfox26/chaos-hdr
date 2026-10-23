@@ -26,9 +26,16 @@ class UpdateTests(unittest.TestCase):
         (self.root/'release.json').write_text(json.dumps({'tag':'v0.2.0','prerelease':True}))
         (self.root/'profile.json').write_text('{"enabled":true}\n')
         self.updater=updates.Updater(self.root)
+        self.source=self.root/'staged-source';self.source.mkdir()
+        (self.source/'release.json').write_text(json.dumps({'tag':'v0.3.0','prerelease':False}))
+        staged=patch.object(self.updater,'stage_payload',return_value=(self.source,['release.json']))
+        staged.start();self.addCleanup(staged.stop)
+        publisher=patch('prepare_desktop.publish');publisher.start();self.addCleanup(publisher.stop)
+        self.candidate=self.updater.folder/'candidate.json'
+        self.candidate.write_text(json.dumps({'release':{'tag':'v0.2.0','prerelease':True},'development_checks':False}))
 
     def complete_release(self,*args):
-        (self.root/'release.json').write_text(json.dumps({'tag':'v0.3.0','prerelease':False}))
+        self.candidate.write_text(json.dumps({'release':{'tag':'v0.3.0','prerelease':False},'development_checks':False}))
 
     def test_semantic_version_and_prerelease_order(self):
         values=['v0.2.0-rc.2','v0.2.0-rc.10','v0.2.0','v0.10.0','v1.0.0']
@@ -97,7 +104,8 @@ class UpdateTests(unittest.TestCase):
         before=(self.root/'profile.json').read_bytes()
         with patch.object(self.updater,'run_setup') as setup,patch('updates.published_releases') as fetch:
             self.assertEqual(self.updater.install(rebuild=True),0)
-        setup.assert_called_once_with(['bash',str(self.root/'bootstrap.sh')])
+        self.assertEqual(setup.call_count,2)
+        self.assertEqual(setup.call_args.args[0],[str(self.root/'.venv/bin/python'),str(self.root/'install.py')])
         fetch.assert_not_called()
         self.assertEqual((self.root/'profile.json').read_bytes(),before)
 
@@ -139,8 +147,8 @@ class UpdateTests(unittest.TestCase):
         with patch('updates.published_releases',return_value=[release()]),patch.object(self.updater,'download',return_value=payload) as download,patch.object(self.updater,'run_setup',side_effect=self.complete_release) as setup:
             self.assertEqual(self.updater.install(),0)
         download.assert_called_once()
-        setup.assert_called_once_with(['bash',str(payload),str(self.root)])
-        backup=next(self.updater.folder.glob('source-backup-*'))
+        self.assertEqual(setup.call_count,2)
+        backup=next(self.updater.folder.glob('rollback-*'))
         self.assertTrue((backup/'release.json').is_file())
         self.assertEqual((self.root/'profile.json').read_text(),'{"enabled":true}\n')
 
@@ -168,10 +176,11 @@ class UpdateTests(unittest.TestCase):
             if args[0]=='remote':return 'https://github.com/'+updates.REPOSITORY+'.git'
             if args[0]=='rev-parse':return 'a'*40
             return ''
-        with patch.object(self.updater,'git',side_effect=git) as calls,patch('updates.published_releases',return_value=[release()]),patch.object(self.updater,'download',return_value=self.root/'fixture'),patch.object(self.updater,'run_setup',side_effect=self.complete_release) as setup:
+        with patch.object(self.updater,'git',side_effect=git) as calls,patch('updates.published_releases',return_value=[release()]),patch.object(self.updater,'download',return_value=self.root/'fixture'),patch.object(self.updater,'run_setup',side_effect=self.complete_release) as setup,patch('updates.subprocess.check_output',return_value=(self.source/'release.json').read_bytes()):
             self.assertEqual(self.updater.install(),0)
         self.assertIn(unittest.mock.call('merge','--ff-only','a'*40),calls.call_args_list)
-        setup.assert_called_once_with(['bash',str(self.root/'bootstrap.sh')])
+        self.assertEqual(setup.call_count,2)
+        self.assertEqual(setup.call_args.args[0],[str(self.root/'.venv/bin/python'),str(self.root/'install.py')])
 
     def test_source_and_cmake_release_versions_match(self):
         root=Path(__file__).parent

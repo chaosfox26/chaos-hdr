@@ -1,0 +1,27 @@
+name: Source checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  portable:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install native test dependencies
+        run: sudo apt-get update && sudo apt-get install -y cmake qt6-base-dev
+      - name: Python checks
+        run: python3 -B -m unittest discover -v
+      - name: Native checks
+        run: |
+          cmake -S . -B output/ci-native -DTRUEHDR_TESTS_ONLY=ON
+          cmake --build output/ci-native --target truehdr-profiles-test truehdr-overlay-motion-test --parallel 2
+          output/ci-native/truehdr-profiles-test output/scratch
+          output/ci-native/truehdr-overlay-motion-test
+      - name: Public source package and integrity
+        run: |
+          python3 -B package_installer.py --public
+          bash output/installers/Chaos-HDR-CachyOS.run --check

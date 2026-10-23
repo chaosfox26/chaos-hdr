@@ -1,0 +1,40 @@
+{
+  "fonts": [
+    {
+      "file": "Barlow-Regular.ttf",
+      "url": "https://raw.githubusercontent.com/jpt/barlow/dc2940e2e04ef4ec96c07e23e0f02aefbddd343b/fonts/ttf/Barlow-Regular.ttf",
+      "sha256": "1da0b65f2389aeafb817e63a18ed30569537bfa9c1d68bb45f12c25691481068"
+    },
+    {
+      "file": "Barlow-SemiBold.ttf",
+      "url": "https://raw.githubusercontent.com/jpt/barlow/dc2940e2e04ef4ec96c07e23e0f02aefbddd343b/fonts/ttf/Barlow-SemiBold.ttf",
+      "sha256": "4921fa2882d1835d2f487b3b1121ba483373726c50f92f5381d078846e36f61d"
+    },
+    {
+      "file": "OFL-Barlow.txt",
+      "url": "https://raw.githubusercontent.com/jpt/barlow/dc2940e2e04ef4ec96c07e23e0f02aefbddd343b/OFL.txt",
+      "sha256": "186d750eb496a4c17a76385f82be6aea2ac1cf2de074a811d63786cf374ea73f"
+    },
+    {
+      "file": "RubikGlitch-Regular.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/rubikglitch/RubikGlitch-Regular.ttf",
+      "sha256": "260245012483d56956269100ebece747aa95b4b67e5a9411a81a36e91f55e653"
+    },
+    {
+      "file": "OFL-RubikGlitch.txt",
+      "url": "https://raw.githubusercontent.com/google/fonts/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/rubikglitch/OFL.txt",
+      "sha256": "f9e2d4498ea80d38bac7b8841d68af68c132fa67e1552e7c05717e6987de1d74"
+    },
+    {
+      "file": "Audiowide-Regular.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/audiowide/Audiowide-Regular.ttf",
+      "sha256": "c7c0f2b0f6fad8c623e31772ce79f94a4edb9321ffce9fce978ea892d20ae730"
+    },
+    {
+      "file": "OFL-Audiowide.txt",
+      "url": "https://raw.githubusercontent.com/google/fonts/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/audiowide/OFL.txt",
+      "sha256": "4fe01b13ffb41faa8f030d84843a95dab32792dfeeca7c072abbfd3f4d6896ad"
+    }
+  ],
+  "modifications": "None; original upstream font files and licenses."
+}

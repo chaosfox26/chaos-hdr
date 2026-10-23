@@ -1,41 +1,19 @@
 # Chaos HDR
 
-## 0.2.0 release notes — KWin 6.8.1 compatibility
+## 0.4.0 — the Chaos HDR sidebar
 
-**Restores compatibility with KWin 6.8.1 after the 6.8.0-to-6.8.1 desktop update.**
-The native effect can be rebuilt for the updated desktop, restoring effect
-loading and the Alt+Z overlay while keeping the compatibility guard in place.
+A full-height, translucent Alt+Z sidebar with neon lettering, animated
+lightning, smooth transitions and independent HDR and sharpening controls.
+The exposed desktop stays usable, and KDE screenshots can include the open
+sidebar. Optional reduced motion and accessible native controls are under **More**.
 
-- **Updates & repair in Alt+Z:** access release updates and desktop repair from
-  the menu. If the effect cannot load, Alt+Z and the application launcher open
-  an independent recovery window.
-- **Daily GitHub release checks:** automatic checks run at most once every
-  24 hours, including after failed attempts or login restarts. Manual checks
-  show the last check and any connection error.
-- **Update notifications:** newer applicable releases display “Chaos HDR has an
-  update.” Experimental installations include prereleases; stable installations
-  exclude them.
-- **User-controlled installation:** updates install only after confirmation and
-  verify the release installer. Local source changes and commits are protected.
-- **Rebuild for this desktop:** repair desktop compatibility without waiting for
-  a new Chaos HDR release. Saved profiles and allowed applications are preserved;
-  only Chaos HDR's services restart.
-- **Clear startup errors:** mismatched versions and recovery steps appear in the
-  user service log.
+This release also improves display tracking, settings persistence, update
+rollback and GPU-resource cleanup. Matched local tests preserved approximately
+0.27 ms of GPU processing at 1440p. See the [release notes](docs/releases/0.4.0.md)
+for results, limitations and the cold-rebuild tradeoff.
 
-HDR conversion, debanding and sharpening algorithms are unchanged. Future KWin
-API changes may still require source changes; a rebuild cannot guarantee every
-future desktop version will work. If running and installed KWin differ, sign
-out and back in before rebuilding.
-
-**Publication status:** [0.2.0 is published as an experimental source release](https://github.com/chaosfox26/chaos-hdr/releases/tag/v0.2.0).
-Its source installer, launcher and checksums are available on the release page.
-The download command below remains pinned to 0.1.0 pending the documented
-fresh-system acceptance test; it does not install 0.2.0.
-Local automated tests and a production rebuild on KWin 6.8.1 passed. Fresh-system
-installation, startup after a new login, real-application HDR conversion and
-installation of a newer hosted release remain unverified.
-[Full 0.2.0 release notes](docs/releases/0.2.0.md).
+[Download the experimental 0.4.0 source installer](https://github.com/chaosfox26/chaos-hdr/releases/tag/v0.4.0).
+Fresh-system installation and new-login acceptance remain unverified.
 
 ## About Chaos HDR
 
@@ -54,11 +32,11 @@ Chaos HDR is my implementation of the workflow I wanted: launch an application n
 - **Install:** paste this one command into a terminal and press Enter:
 
 ```sh
-curl -fsSL https://github.com/chaosfox26/chaos-hdr/releases/download/v0.1.0/install.sh | bash
+curl -fsSL https://github.com/chaosfox26/chaos-hdr/releases/download/v0.4.0/install.sh | bash
 ```
 
 - **Supported target:** CachyOS/Arch, KDE Plasma Wayland, compatible NVIDIA RTX GPU/driver, HDR enabled in KDE. Fresh-machine installation is not yet verified.
-- **Open controls:** Alt+Z → choose a window → Allow application → Enable Chaos HDR.
+- **Open controls:** Alt+Z → choose a window → Allow application → choose HDR and sharpening.
 - **Uninstall:** `~/.local/bin/chaos-hdr-uninstall`
 - **Delete everything as well:** `~/.local/bin/chaos-hdr-uninstall --purge` — permanently deletes the complete project and saved settings.
 
@@ -98,4 +76,4 @@ These links acknowledge and help readers discover other work. They do not imply 
 
 ## Current boundaries
 
-The fast path requires compatible buffers and leaves unsupported windows unchanged. VR output and universal anti-cheat approval are not established. The panel’s input grab can still interfere with screenshot shortcuts while it is open. See [compatibility](docs/compatibility.md) and [troubleshooting](docs/troubleshooting.md).
+The fast path requires compatible buffers and leaves unsupported windows unchanged. VR output and universal anti-cheat approval are not established. The panel uses regional input handling; KDE screenshot selection takes priority over its controls. See [compatibility](docs/compatibility.md) and [troubleshooting](docs/troubleshooting.md).

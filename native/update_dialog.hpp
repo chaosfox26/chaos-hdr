@@ -26,7 +26,9 @@ class UpdateDialog : public QDialog {
     QPushButton *check,*install,*rebuild;
     void refresh(){
         auto state=updateRead(root+"/output/updates/status.json");
-        auto current=updateRead(root+"/release.json");
+        auto current=updateRead(root+"/output/updates/installed-release.json");
+        if(current.isEmpty())current=updateRead(root+"/build-desktop/install-manifest.json")["release"].toObject();
+        if(current.isEmpty())current=updateRead(root+"/release.json");
         auto available=state["available"].toObject()["tag"].toString();
         bool busy=state["busy"].toBool()||state["status"]=="checking";
         summary->setText(state["message"].toString("Check for new Chaos HDR releases."));

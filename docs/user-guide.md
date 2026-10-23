@@ -30,8 +30,8 @@ development work. Setup progress/errors are local under `output/updates/`.
 1. Start the application using its normal launcher.
 2. Press Alt+Z or open Chaos HDR from the app menu.
 3. Select a running application window.
-4. Click Allow application and enable Chaos HDR.
-5. Adjust the image, then close the panel with Done, Escape or Alt+Z.
+4. Click Allow application, then enable HDR, Sharpening, or both.
+5. Adjust the image, then close the panel with its top-right arrow, Escape or Alt+Z.
 
 Approval is explicit. Merely opening controls or highlighting an unapproved window leaves it unchanged. Approved window identities are remembered locally; reopening an app can select it automatically. Activating another approved window can switch the selected target. Only one window is processed at a time. Remove application revokes its remembered approval.
 
@@ -39,7 +39,8 @@ Approval is explicit. Merely opening controls or highlighting an unapproved wind
 
 | Control | Current range or behavior |
 |---|---|
-| Enable Chaos HDR | Turns processing on/off |
+| HDR | Enables HDR conversion independently of sharpening |
+| Sharpening | Enables sharpening independently of HDR |
 | Peak brightness | Automatic from KDE’s configured display; supported target 400–2,000 nits |
 | Middle greys | 10–100 nits |
 | Contrast | −100% to +100% |
@@ -57,6 +58,40 @@ Peak brightness and display selection are treated separately from reusable pictu
 
 ## Other windows and screenshots
 
-The final game draw respects KWin clipping, so menus and other windows above it are preserved. The controls themselves grab keyboard/mouse input while open. Screenshot-shortcut interaction with an open panel remains a known issue; close the panel for ordinary screenshot-tool use. We do not claim that every capture tool preserves HDR appearance.
+The sidebar slides in from the left and spans the full output height, including the taskbar area beneath it. Its translucent background keeps the application visible beneath the animated lightning. Hover over a control for its explanation.
+
+Clicks outside the sidebar reach the desktop, including exposed parts of the taskbar. A slider drag stays with its control until you release it, even if the pointer leaves the sidebar. Clicking another application returns typing to it.
+
+KDE screenshot shortcuts remain available while the sidebar is open, including Print Screen and Meta+Shift+S where configured. Spectacle can capture the sidebar and the application together. During region selection, Chaos HDR yields input and stops drawing over the selection tool; the captured image already contains the sidebar. It resumes afterward. The final game draw respects KWin clipping. Screenshot color depends on the capture tool and viewer; an SDR screenshot may not reproduce an HDR display's appearance.
 
 An unsupported window remains unfiltered rather than switching silently to a slower capture path. Check the panel message and [compatibility requirements](compatibility.md).
+
+## Accessibility and text editing
+
+Open **More → Reduce motion** for a static wordmark/lightning background and
+instant opening and closing. The default retains the animated Chaos HDR design.
+
+**More → Accessible controls** opens a native Qt controls window with labelled
+fields, keyboard navigation and the platform accessibility interface. It also
+appears as an action on the application launcher. It includes application
+approval, profiles, HDR and sharpening. It follows the desktop's text settings;
+full screen-reader validation is still part of release acceptance.
+
+Profile names support Unicode. The overlay uses installed fallback fonts for
+characters absent from the brand fonts. Complex text shaping is handled by the
+native controls window. In the overlay name field, Ctrl+A/C/X/V and normal
+navigation keys work. Clipboard access happens only when you request copy,
+cut or paste; clipboard contents are not written to a project file.
+
+## Display changes and recovery
+
+Move the selected application between screens and its effective brightness
+follows the screen receiving the window. An unavailable or SDR output bypasses
+HDR without switching off a separately enabled sharpening setting. Your saved
+picture profile does not overwrite KDE's display calibration.
+
+Unsupported translucent windows stay unchanged. A temporary processing failure
+gets a small number of automatic retries. **Retry processing** can request a new
+attempt; removing and allowing the application again is also available.
+Disconnecting the screen hosting the sidebar closes it and releases its input
+and cursor ownership. Open it again with Alt+Z on an available screen.

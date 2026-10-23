@@ -13,3 +13,5 @@ launch-settings.json
 vendor/imgui/backends/imgui_impl_vulkan.cpp
 vendor/imgui/backends/imgui_impl_vulkan.h
 vendor/presentation-time.xml
+profile.json.pending
+*.truehdr-tmp

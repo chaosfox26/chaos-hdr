@@ -29,10 +29,9 @@ on different hardware, displays, drivers or KWin versions.
 
 ## One-command installation
 
-The command below installs the published experimental 0.1.0 release.
-[Experimental 0.2.0 source and installer assets are also published](https://github.com/chaosfox26/chaos-hdr/releases/tag/v0.2.0).
-Publication does not establish fresh-system acceptance. The front-page command
-remains pinned to 0.1.0 pending that test and does not install 0.2.0.
+The command below installs the [experimental 0.4.0 source release](https://github.com/chaosfox26/chaos-hdr/releases/tag/v0.4.0).
+Fresh-system installation, new-login startup and a complete hosted-release
+upgrade remain unverified. Publication does not establish that acceptance.
 
 The primary installation workflow is to copy one command from the GitHub front
 page, paste it into a terminal and press Enter. It downloads the release and runs
@@ -42,7 +41,7 @@ downloaded source installer's SHA-256 before running it, and keeps temporary
 downloads inside the consolidated project folder.
 
 ```sh
-curl -fsSL https://github.com/chaosfox26/chaos-hdr/releases/download/v0.1.0/install.sh | bash
+curl -fsSL https://github.com/chaosfox26/chaos-hdr/releases/download/v0.4.0/install.sh | bash
 ```
 
 This experimental source release has not yet passed a fresh-machine installation
@@ -56,7 +55,7 @@ bash Chaos-HDR-CachyOS.run
 
 It extracts reviewed source, reuses or creates the project-local dependency environment, obtains pinned NVIDIA components, builds the native effect and shortcut/controller helpers, and registers login startup. Existing picture profiles and app approvals are preserved. There are no game-folder copies or per-game launch flags.
 
-The [GitHub release](https://github.com/chaosfox26/chaos-hdr/releases/tag/v0.1.0) also provides source and installer downloads for inspection. Integrity checking is available with `bash Chaos-HDR-CachyOS.run --check`.
+The [GitHub release](https://github.com/chaosfox26/chaos-hdr/releases/tag/v0.4.0) also provides source and installer downloads for inspection. Integrity checking is available with `bash Chaos-HDR-CachyOS.run --check`.
 
 ## Release acceptance
 
@@ -67,11 +66,11 @@ build the full production implementation, register and start its services, and
 configure Alt+Z without manual file placement or additional setup commands.
 Normal system authentication for prerequisite packages may still be required.
 
-For 0.2.0, local automated tests and an existing-machine KWin 6.8.1 production
-rebuild passed. Fresh-system installation, a new-login startup check,
-real-application HDR conversion and installation from a genuinely newer hosted
-release remain unverified. Local extraction and mocked updater checks are not
-substitutes for those results.
+For 0.4.0, automated source and package tests, isolated KDE graphics checks,
+and an existing-machine KWin 6.8.1 production build passed. Fresh-system
+installation, a new-login startup check and a complete installation from the
+hosted release remain unverified. Local extraction and mocked updater checks
+are not substitutes for those results.
 
 Record the tested system versions and verify the real TrueHDR runtime loads,
 the direct-buffer path filters an explicitly approved compatible SDR window,
@@ -107,7 +106,7 @@ The canonical folder is `~/Documents/ChatGPT/CachyOS/RTX HDR experimental`. Sour
 
 After a KWin update, run `bash bootstrap.sh` from the existing project folder to
 rebuild and reinstall that folder's source against the matching version. This
-does not download the 0.2.0 changes into a 0.1.0 installation. Future
+does not download newer release source into an older installation. Future
 API changes may require updated source as well as a rebuild. Rebuilding preserves
 saved profiles and app approvals. If running KWin differs from the installed version, log out/in
 first. When they already match, no additional desktop restart is needed. A blocked

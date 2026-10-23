@@ -21,7 +21,9 @@ class ReleaseController : public QObject {
     }
     void startCheck(){
         if(check.state()!=QProcess::NotRunning)return;
-        check.setWorkingDirectory(root);check.start(root+"/.venv/bin/python",{root+"/updates.py","--check"});
+        check.setWorkingDirectory(root);
+        if(QFile::exists(folder+"/transaction.json"))check.start("systemd-run",{"--user","--collect","--no-block","--unit=chaos-hdr-recovery",root+"/.venv/bin/python",root+"/updates.py","--recover"});
+        else check.start(root+"/.venv/bin/python",{root+"/updates.py","--check"});
     }
 public:
     explicit ReleaseController(QString path,QObject* parent):QObject(parent),root(std::move(path)),folder(root+"/output/updates"){

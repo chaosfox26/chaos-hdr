@@ -2,7 +2,8 @@
 layout(local_size_x=16,local_size_y=16) in;
 layout(binding=0) uniform sampler2D source;
 layout(rgba8ui,binding=1) writeonly uniform uimage2D destination;
-layout(push_constant) uniform Settings { uint width,height;float intensity,grain; } config;
+layout(rgb10_a2,binding=2) writeonly uniform image2D sdrDestination;
+layout(push_constant) uniform Settings { uint width,height;float intensity,grain;uint hdr; } config;
 shared vec3 tile[324];
 void main(){
     uvec2 pos=gl_GlobalInvocationID.xy;
@@ -29,6 +30,7 @@ void main(){
         detail=sign(detail)*max(abs(detail)-config.grain*(8.0/255.0),vec3(0));
         rgb=clamp(rgb+clamp(detail,vec3(-0.05),vec3(0.05))*config.intensity,vec3(0),vec3(1));
     }
+    if(config.hdr==0){imageStore(sdrDestination,ivec2(pos),vec4(rgb,1));return;}
     uint packed=packUnorm4x8(vec4(rgb,1));
     imageStore(destination,ivec2(pos),uvec4(packed&255,(packed>>8)&255,(packed>>16)&255,packed>>24));
 }

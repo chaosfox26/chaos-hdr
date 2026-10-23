@@ -60,9 +60,53 @@ HDR's own services does not terminate the installer. No desktop restart occurs.
 | OpenGL/libepoxy, libdrm, Wayland server | Integrates KWin rendering, buffer attributes and synchronization |
 | Qt 6 and KDE Frameworks | Event handling, configuration, local IPC and shortcuts |
 | Dear ImGui | Renders in-compositor controls |
-| kscreen-doctor | Reads effective KDE display brightness metadata |
+| KWin output metadata | Supplies the selected screen’s current HDR state and effective peak directly to the effect |
+| Fontconfig and installed fonts | Supplies missing characters for profile names and application titles |
+| kscreen-doctor | Installation/display checks and isolated development fixtures |
 | Python 3.12 and uv | Dependency setup and short-lived lifecycle helpers; no Python inference loop |
 | systemd user services | Login startup and process crash recovery |
 | libnotify / notify-send | Local update-available and setup-result notifications |
 
 The default route does not require a second Gamescope compositor, SDL or a Python Torch conversion worker. The existing development environment is reused. See [credits](credits.md), [third-party notices](../THIRD_PARTY_NOTICES.rst) and the [detailed development reference](../Chaos%20HDR%20development.md).
+
+## Settings and deployment in 0.4.0
+
+The effect derives one effective peak from the selected window's current KWin
+output, preferring the configured override to the display's advertised peak.
+The UI, NVIDIA settings and output color description use that value. Native
+output-change notifications refresh it; stale profile connector names do not
+choose the rendering display. HDR is bypassed on an SDR output or outside the
+supported peak range, while sharpening can remain available.
+
+GPU recording receives a small in-memory picture-settings value. It performs no
+profile-file checks. Slider changes apply immediately in memory; persistence is
+debounced outside painting. A local write-ahead record lets a restart finish an
+interrupted write of the current profile and named-profile collection.
+
+Each completed build has an immutable directory under `output/builds/` whose
+identity includes native code, shaders, artwork, fonts, ImGui, build definitions
+and the KWin version. The `build-desktop` and `build` paths select the active
+artifacts. Verified release sources build in staging before source activation;
+a recovery journal preserves prior sources and artifact links. The installed
+release marker changes after setup succeeds. A failed or interrupted activation
+can restore the previous build, and the updater reconciles stale busy states
+when it owns the operation lock.
+
+The active sidebar allocates a texture covering its controls, popups and cursor,
+with damage bounded to that part of its output. Direct DMA-BUF processing does
+not allocate the diagnostic capture texture. Unsuitable alpha surfaces are left
+unchanged. Producer readiness and the preceding GPU job are checked without
+waiting before a direct submission; an unfinished frame is passed through.
+
+GPU cleanup polls the last submitted Vulkan fence and a GL fence inserted only
+at retirement. The source buffer and its release point remain retained until
+both have completed. Only one context can retire at a time; rebuilding waits
+for its completion. A pending active submission gets a one-second watchdog,
+and retirement has a separate one-second deadline. Unresolved resources are
+retained until compositor exit, and GPU processing stays disabled for that
+compositor session, including after effect reload. Normal managed unload first
+asks the effect to retire; unexpected unload retains any unresolved resources.
+This removes explicit blocking teardown waits without adding per-frame fences,
+copies or queues. It does not isolate KWin from a driver hang on the shared GPU.
+
+Build identity includes first-party/native sources, bundled assets and fonts, ImGui, SDK download metadata, KWin binary identity, relevant package/compiler versions and build flags. Staging leaves the active manifest and plugin untouched. Both packaged setup and the in-app updater share the same activation transaction; a failed load restores the prior source/manifest/links before restarting the previous integration.

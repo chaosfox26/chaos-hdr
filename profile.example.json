@@ -1,6 +1,8 @@
 {
   "version": 1,
   "enabled": true,
+  "hdr_enabled": true,
+  "sharpen_enabled": true,
   "peak_brightness": 650,
   "middle_gray": 50,
   "contrast": 0,

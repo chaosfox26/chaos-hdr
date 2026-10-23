@@ -14,6 +14,7 @@ import urllib.error
 import urllib.request
 
 from project import ROOT, atomic_write
+from deployment import Deployment, activation_files
 
 REPOSITORY='https://github.com/chaosfox26/chaos-hdr'.removeprefix('https://github.com/')
 API='https://api.github.com/repos/'+REPOSITORY
@@ -95,7 +96,7 @@ class Updater:
         self.folder=self.root/'output/updates'
         self.folder.mkdir(parents=True,exist_ok=True,mode=0o700)
         self.path=self.folder/'status.json'
-        self.current=read(self.root/'release.json')
+        self.current=(read(self.folder/'installed-release.json') or read(self.root/'build-desktop/install-manifest.json').get('release') or read(self.root/'release.json'))
         version(self.current['tag'],self.current.get('prerelease',False))
 
     @contextlib.contextmanager
@@ -104,8 +105,12 @@ class Updater:
             os.fchmod(lock.fileno(),0o600)
             try:fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
             except BlockingIOError:yield False;return
-            try:yield True
-            finally:fcntl.flock(lock,fcntl.LOCK_UN)
+            try:
+                self.lock_fd=lock.fileno()
+                yield True
+            finally:
+                self.lock_fd=None
+                fcntl.flock(lock,fcntl.LOCK_UN)
 
     def save(self,state):
         state.update(current_tag=self.current['tag'],prerelease=self.current.get('prerelease',False))
@@ -115,7 +120,7 @@ class Updater:
         now=time.time() if now is None else now
         with self.lock() as acquired:
             if not acquired:return read(self.path)
-            state=read(self.path)
+            state=self.reconcile(read(self.path))
             last=state.get('last_attempt',0)
             if not manual and last and now-last<DAY:
                 if state.get('current_tag')!=self.current['tag']:
@@ -171,68 +176,105 @@ class Updater:
         if checksum.hexdigest()!=digest:raise RuntimeError('Installer verification failed. Nothing was installed.')
         return path
 
+    def reconcile(self, state):
+        transaction=Deployment(self.root)
+        if transaction.read():
+            transaction.rollback(self.run_setup)
+            self.current=(read(self.folder/'installed-release.json') or read(self.root/'build-desktop/install-manifest.json').get('release') or read(self.root/'release.json'))
+            state.update(busy=False,status='interrupted',message='The previous setup was interrupted. The previous build has been restored.',error='Retry the update or rebuild when ready.')
+            self.save(state)
+        elif state.get('busy') or state.get('status')=='checking':
+            state.update(busy=False,status='interrupted',message='The previous operation was interrupted.',error='Check for updates or retry setup when ready.')
+            self.save(state)
+        return state
+
+    def stage_payload(self, payload, stage):
+        source=stage/'RTX HDR experimental'
+        result=subprocess.run(['bash',str(payload),'--extract-only',str(source)],capture_output=True,text=True)
+        if result.returncode:raise RuntimeError('Could not extract the verified release. The installed build was not changed.')
+        manifest=read(source/'INSTALL-MANIFEST.json')
+        files=manifest.get('files',{})
+        if not files:raise RuntimeError('The release source manifest is missing.')
+        for name,digest in files.items():
+            path=Path(name)
+            if path.is_absolute() or '..' in path.parts or path.parts[0] in ('.git','output','build','build-desktop','.venv'):
+                raise RuntimeError('The release contains an unsupported source path.')
+            if hashlib.sha256((source/name).read_bytes()).hexdigest()!=digest:raise RuntimeError('Release source verification failed.')
+        return source,list(files)
+
     def install(self,rebuild=False):
         with self.lock() as acquired:
             if not acquired:return 1
-            state=read(self.path)
+            state=self.reconcile(read(self.path))
             state.update(busy=True,status='installing',error='',message='Rebuilding Chaos HDR...' if rebuild else 'Preparing release update...')
             self.save(state)
+            transaction=Deployment(self.root)
             code=1
             try:
-                if rebuild:
-                    command=['bash',str(self.root/'bootstrap.sh')]
-                    self.run_setup(command)
-                else:
-                    source=self.source_preflight()
-                    releases=published_releases()
-                    release=choose(releases,self.current)
-                    if not release:raise RuntimeError('No newer applicable release is available.')
-                    installer(release)
-                    scratch=self.root/'output/scratch';scratch.mkdir(parents=True,exist_ok=True)
-                    with tempfile.TemporaryDirectory(prefix='release-update-',dir=scratch) as stage:
-                        stage=Path(stage)
+                scratch=self.root/'output/scratch';scratch.mkdir(parents=True,exist_ok=True)
+                with tempfile.TemporaryDirectory(prefix='release-update-',dir=scratch) as temporary:
+                    stage=Path(temporary);source=self.root;names=[];before=target=None
+                    expected=read(self.root/'release.json')
+                    if not rebuild:
+                        git_source=self.source_preflight()
+                        release=choose(published_releases(),self.current)
+                        if not release:raise RuntimeError('No newer applicable release is available.')
                         payload=self.download(release,stage)
-                        if source:
-                            tag=release['tag_name']
-                            self.git('fetch','--no-tags','origin','refs/tags/'+tag)
-                            target=self.git('rev-parse','FETCH_HEAD^{commit}')
-                            self.source_preflight()
-                            try:self.git('merge-base','--is-ancestor','HEAD',target)
-                            except subprocess.CalledProcessError:raise RuntimeError('This checkout contains work beyond the release. Update it manually; no local commits were replaced.')
-                            self.git('merge','--ff-only',target)
-                            self.run_setup(['bash',str(self.root/'bootstrap.sh')])
-                        else:
-                            from package_installer import SOURCE_FILES
-                            backup=self.folder/('source-backup-'+str(time.time_ns()))
-                            for name in (*SOURCE_FILES,'LICENSE'):
-                                original=self.root/name
-                                if original.is_file():
-                                    destination=backup/name;destination.parent.mkdir(parents=True,exist_ok=True)
-                                    shutil.copy2(original,destination)
-                            self.run_setup(['bash',str(payload),str(self.root)])
-                installed=read(self.root/'release.json')
-                version(installed['tag'],installed.get('prerelease',False))
-                if not rebuild and installed!={'tag':release['tag_name'],'prerelease':release.get('prerelease',False)}:
-                    raise RuntimeError('Setup did not report the requested release version. Check output/updates/install.log before retrying.')
-                self.current=installed
+                        source,names=self.stage_payload(payload,stage)
+                        expected={'tag':release['tag_name'],'prerelease':release.get('prerelease',False)}
+                        if read(source/'release.json')!=expected:raise RuntimeError('The source does not match the requested release version.')
+                        if git_source:
+                            self.git('fetch','--no-tags','origin','refs/tags/'+release['tag_name'])
+                            target=self.git('rev-parse','FETCH_HEAD^{commit}');before=self.git('rev-parse','HEAD')
+                            try:self.git('merge-base','--is-ancestor',before,target)
+                            except subprocess.CalledProcessError:raise RuntimeError('This checkout contains work beyond the release. No local commits were replaced.')
+                            for name in names:
+                                content=subprocess.check_output(['git','-C',str(self.root),'show',target+':'+name])
+                                if content!=(source/name).read_bytes():raise RuntimeError('Release source differs from its Git tag.')
+                    self.run_setup([str(self.root/'.venv/bin/python'),str(source/'prepare_desktop.py'),'--runtime-root',str(self.root),'--stage-only'])
+                    candidate=read(self.folder/'candidate.json')
+                    if candidate.get('release')!=expected or candidate.get('development_checks') is not False:
+                        raise RuntimeError('The candidate build does not match the requested release version or production mode.')
+                    if before:self.source_preflight()
+                    self.activate(source,names,candidate,before,target)
+                    self.current=expected
                 available=state.get('available') if rebuild else None
                 state.update(status='available' if available else 'complete',available=available,
                              message='Rebuild complete. Chaos HDR has an update: '+available['tag'] if available else 'Chaos HDR is ready. Open Alt+Z to continue.')
                 notify('Chaos HDR is ready','The rebuild finished.' if rebuild else 'The release update finished.')
                 code=0
             except (OSError,ValueError,KeyError,TypeError,RuntimeError,subprocess.SubprocessError) as exc:
-                detail=str(exc) if isinstance(exc,RuntimeError) else 'Setup failed. See output/updates/install.log, resolve the issue, then try Rebuild.'
+                detail=str(exc) if isinstance(exc,RuntimeError) else 'Setup failed. See output/updates/install.log, resolve the issue, then retry.'
                 if isinstance(exc,urllib.error.URLError):detail='Could not reach GitHub. Check your connection and try the update again.'
+                try:
+                    if transaction.rollback(self.run_setup):detail+=' The previous build was restored.'
+                except (OSError,ValueError,RuntimeError,subprocess.SubprocessError):detail+=' Recovery is pending; saved files have been retained.'
                 state.update(status='error',message='Chaos HDR setup did not complete.',error=detail)
                 notify('Chaos HDR setup needs attention',detail)
             state['busy']=False
             self.save(state)
             return code
 
+    def activate(self,source,names,candidate,before=None,target=None):
+        transaction=Deployment(self.root)
+        changed=list(filter(None,self.git('diff','--name-only','-z',before,target).split('\0'))) if before else []
+        transaction.begin([*names,*changed,*activation_files()],before,target)
+        if before:self.git('merge','--ff-only',target)
+        else:
+            for name in names:
+                if name in ('profile.json','profiles.json','window-targets.json','launch-settings.json'):continue
+                destination=self.root/name;destination.parent.mkdir(parents=True,exist_ok=True)
+                temporary=destination.with_name(destination.name+'.install')
+                shutil.copy2(source/name,temporary);temporary.replace(destination)
+        from prepare_desktop import publish
+        transaction.activation();publish(self.root,candidate)
+        self.run_setup([str(self.root/'.venv/bin/python'),str(self.root/'install.py')])
+        transaction.finish(candidate['release'])
+
     def run_setup(self,command):
-        with (self.folder/'install.log').open('w') as log:
+        with (self.folder/'install.log').open('a') as log:
             os.fchmod(log.fileno(),0o600)
-            result=subprocess.run(command,cwd=self.root,stdout=log,stderr=subprocess.STDOUT)
+            result=subprocess.run(command,cwd=self.root,stdout=log,stderr=subprocess.STDOUT,pass_fds=(self.lock_fd,) if getattr(self,'lock_fd',None) is not None else ())
         if result.returncode:raise RuntimeError('Setup failed. See output/updates/install.log, resolve the issue, then try Rebuild.')
 
 
@@ -242,9 +284,17 @@ def main():
     choice.add_argument('--check',action='store_true')
     choice.add_argument('--install',action='store_true')
     choice.add_argument('--rebuild',action='store_true')
+    choice.add_argument('--recover',action='store_true')
     parser.add_argument('--manual',action='store_true')
     args=parser.parse_args()
     updater=Updater()
+    if args.recover:
+        with updater.lock() as acquired:
+            if not acquired:return 1
+            try:updater.reconcile(read(updater.path));return 0
+            except (OSError,ValueError,RuntimeError,subprocess.SubprocessError):
+                state=read(updater.path);state.update(busy=False,status='error',message='Recovery needs attention.',error='The previous build could not be restored. Saved recovery files have been retained. Retry after resolving the desktop or build problem.')
+                updater.save(state);return 1
     if args.check:
         updater.check(args.manual)
         return 0

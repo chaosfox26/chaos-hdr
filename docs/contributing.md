@@ -18,7 +18,7 @@ Chaos HDR's original code and documentation are licensed under [GNU GPL version 
 
 Normal source setup uses `bash bootstrap.sh`; it obtains dependencies, builds production targets and registers the integration. An already-provisioned tree can rebuild production with `.venv/bin/python prepare_desktop.py`. Reinstall registrations with `.venv/bin/python install.py` when needed.
 
-Run `.venv/bin/python -m unittest test_desktop_version.py test_updates.py` to check installed,
+Run `.venv/bin/python -B -m unittest discover -v` to check installed,
 running and recorded KWin version handling without loading an effect or changing
 the live desktop. The fixture also checks that the controller's attachment command
 returns an actionable error instead of a Python traceback.
@@ -37,7 +37,9 @@ Development checks require explicit development compilation:
 .venv/bin/python desktop_probe.py --gpu-input --controller --selection --watchdog --occlusion --frame-trace
 ```
 
-The fixture uses an isolated compositor and copied settings. Build-mode changes use the same local build tree: do not switch a live production installation into development mode casually. Stop its controller first if deliberately doing that. Restore a production build and installation afterward. Never launch a real game merely for maintenance checks.
+Run development builds in a dedicated source copy inside `output/scratch`, with its own active manifest. Build outputs are immutable under `output/builds/<fingerprint>`; normal `prepare_desktop.py` publishes the new manifest, while `--stage-only` only records a candidate. Never publish a development manifest into a live production installation for ordinary testing. The fixture creates a private compositor and session bus, sets its own Wayland display for both clients and helper processes, and copies settings into its fixture directory. Never launch a real game merely for maintenance checks.
+
+Run the full input/pixel regression with `--gpu-input --controller --selection --watchdog --occlusion --regional-input --overlay --sdr-pixels`. Additional checks use `--audit-input --audit-input-only`, `--audit-displays`, `--audit-recovery --audit-recovery-only`, or `--alpha`; the display check requires two virtual outputs. `--gpu-input --audit-activation` verifies rollback after a real effect-load failure inside the isolated compositor. Native settings/motion checks can be built with `-DTRUEHDR_TESTS_ONLY=ON` without KWin or a GPU. The source workflow runs these portable checks. The manual graphics workflow requires a dedicated, protected supported runner; do not use a personal interactive desktop as an unattended CI runner.
 
 ## Public packaging
 

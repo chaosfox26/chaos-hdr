@@ -7,6 +7,7 @@ from pathlib import Path
 import re
 import subprocess
 import time
+import xml.etree.ElementTree as ET
 from project import ROOT, atomic_write
 
 PREFIX='truehdr_desktop'
@@ -39,15 +40,25 @@ def start():
         fcntl.flock(lock,fcntl.LOCK_EX)
         return attach()
 
+def prepare_unload(invoke=None):
+    invoke=invoke or call
+    xml=ET.fromstring(invoke('/TrueHDR','org.freedesktop.DBus.Introspectable.Introspect'))
+    if xml.find("./interface[@name='org.truehdr.Desktop']/method[@name='prepareUnload']") is None:return
+    deadline=time.monotonic()+2
+    while invoke('/TrueHDR','org.truehdr.Desktop.prepareUnload')!='true':
+        if time.monotonic()>=deadline:raise RuntimeError('HDR cleanup is still pending. The loaded effect has been kept in place.')
+        time.sleep(.02)
+
 def attach():
     effect=manifest()['effect_id']
-    loaded=call('/Effects','org.kde.kwin.Effects.loadedEffects').splitlines()
+    loaded=call('/Effects','org.freedesktop.DBus.Properties.Get','org.kde.kwin.Effects','loadedEffects').splitlines()
     if effect in loaded:return effect
     if call('/Scripting','org.kde.kwin.Scripting.isScriptLoaded',SCRIPT)!='true':
         number=call('/Scripting','org.kde.kwin.Scripting.loadDeclarativeScript',str(ROOT/'native/desktop/loader.qml'),SCRIPT)
         if not number.isdigit():raise RuntimeError('KDE could not register the HDR effect path.')
         call('/Scripting/Script'+number,'org.kde.kwin.Script.run')
     old=[name for name in loaded if name.startswith(PREFIX)]
+    if old:prepare_unload()
     for name in old:call('/Effects','org.kde.kwin.Effects.unloadEffect',name)
     try:
         if call('/Effects','org.kde.kwin.Effects.loadEffect',effect)!='true':raise RuntimeError('KDE could not load the HDR effect.')
@@ -57,25 +68,17 @@ def attach():
     return effect
 
 def stop():
-    for name in call('/Effects','org.kde.kwin.Effects.loadedEffects').splitlines():
-        if name.startswith(PREFIX):call('/Effects','org.kde.kwin.Effects.unloadEffect',name)
+    for name in call('/Effects','org.freedesktop.DBus.Properties.Get','org.kde.kwin.Effects','loadedEffects').splitlines():
+        if name.startswith(PREFIX):
+            prepare_unload();call('/Effects','org.kde.kwin.Effects.unloadEffect',name)
     if call('/Scripting','org.kde.kwin.Scripting.isScriptLoaded',SCRIPT)=='true':
         call('/Scripting','org.kde.kwin.Scripting.unloadScript',SCRIPT)
 
 def refresh_display():
-
-
     from displays import scan
-    profile=json.loads(Path(os.environ.get('TRUEHDR_PROFILE',str(ROOT/'profile.json'))).read_text())
-    candidates=scan();display=next((d for d in candidates if d['connector']==profile.get('target_display')),None)
-    if display is None:display=next(iter(candidates),None)
-    if not display:return
-    peak=display['peak_brightness']
-    if not 400<=peak<=2000:raise RuntimeError('The OS HDR peak is outside the runtime’s supported 400–2000 nit range.')
-    profile.update(peak_brightness=peak,target_display=display['connector'],peak_source=display['source'])
-    folder=Path(os.environ.get('TRUEHDR_DESKTOP_TEST_ROOT',str(ROOT)))/'output';folder.mkdir(exist_ok=True)
-    atomic_write(folder/'worker-results.json',json.dumps({'last_profile':profile,'route':'desktop','frames':0,
-                 'updated':time.time(),'scope':'Display metadata only; no Python GPU worker'})+'\n')
+    folder=Path(os.environ.get('TRUEHDR_DESKTOP_TEST_ROOT',str(ROOT)))/'output'
+    folder.mkdir(exist_ok=True)
+    atomic_write(folder/'display-metadata.json',json.dumps({'displays':scan(),'updated':time.time()})+'\n')
 
 def daemon():
     controller=ROOT/'build-desktop/truehdr-desktop-session'
@@ -95,7 +98,7 @@ if __name__=='__main__':
         elif args.stop:stop()
         elif args.attach_only:print(start())
         else:
-            effect=start();refresh_display()
+            effect=start()
             if args.controls:atomic_write(ROOT/'overlay.toggle',str(time.time_ns()))
             print('Chaos HDR direct-buffer KDE route ready.')
     except (OSError,ValueError,RuntimeError,subprocess.SubprocessError) as exc:parser.exit(1,str(exc)+'\n')
