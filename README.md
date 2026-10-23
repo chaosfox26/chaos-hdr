@@ -8,8 +8,8 @@ The exposed desktop stays usable, and KDE screenshots can include the open
 sidebar. Optional reduced motion and accessible native controls are under **More**.
 
 This release also improves display tracking, settings persistence, update
-rollback and GPU-resource cleanup. Matched local tests preserved approximately
-0.27 ms of GPU processing at 1440p. See the [release notes](docs/releases/0.4.0.md)
+rollback and GPU-resource cleanup. Matched local tests measured approximately
+0.27 ms of GPU processing at 1440p and 0.49 ms at 4K. See the [release notes](docs/releases/0.4.0.md)
 for results, limitations and the cold-rebuild tradeoff.
 
 **[Download the packaged installer](https://github.com/chaosfox26/chaos-hdr/releases/download/v0.4.1/Chaos-HDR-CachyOS.run)** · [0.4.1 release notes](docs/releases/0.4.1.md)
@@ -22,7 +22,7 @@ Fresh-system installation and new-login acceptance remain unverified.
 
 Experimental NVIDIA TrueHDR and sharpening for selected SDR application windows on KDE Wayland.
 
-**Created by Chaos Fox with the help of OpenAI Codex and Claude Code.**
+**Created by Chaos Fox with the help of OpenAI Codex.**
 
 Chaos HDR is my implementation of the workflow I wanted: launch an application normally, open Alt+Z, explicitly allow its window, and adjust HDR without changing its files. It builds on NVIDIA’s engine and the Linux graphics community’s work. Other projects explore related goals using different methods; this project does not claim to be the first or to replace them.
 
@@ -54,6 +54,25 @@ The public command downloads and runs setup directly from GitHub, then handles d
 - Event-driven idle operation and a watchdog only while a target has HDR enabled.
 - Daily GitHub release checks, update notifications and user-initiated update/repair controls.
 - No first-party telemetry, account inspection or normal frame recording.
+
+## Tested GPU processing time
+
+With **HDR and sharpening enabled**, the tested implementation measured the
+following median GPU times. These local synthetic-scene tests recorded about
+300 completed frames per mode on October 23, 2026. The 0.4.1 runtime is unchanged
+from the tested 0.4.0 implementation.
+
+| Resolution | Processing, sidebar closed | Processing, sidebar open | Overlay drawing, sidebar open |
+|---|---:|---:|---:|
+| 1440p / QHD ("2K") — 2560 × 1440 | **0.269 ms** | 0.275 ms | 0.018 ms |
+| 4K / UHD — 3840 × 2160 | **0.490 ms** | 0.490 ms | 0.022 ms |
+
+Processing includes GPU input preparation, sharpening and NVIDIA TrueHDR.
+Overlay drawing is measured separately; the closed sidebar has no overlay
+draw. These are GPU processing measurements, not total input-to-display latency
+or a guarantee for every GPU and game. See [performance and testing](docs/performance.md)
+for measurement scope and the [0.4.0 results](docs/releases/0.4.0.md) for the
+baseline comparison and recovery tradeoffs.
 
 ## Documentation
 

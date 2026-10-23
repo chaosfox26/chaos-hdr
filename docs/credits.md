@@ -2,7 +2,7 @@
 
 [Back to Chaos HDR](../README.md)
 
-Chaos HDR is Chaos Fox’s implementation of a particular HDR workflow. It was made with the help of **OpenAI Codex and Claude Code**. It integrates existing technology; it does not claim authorship of NVIDIA TrueHDR, KWin, Linux HDR or compositor filtering.
+Chaos HDR is Chaos Fox’s implementation of a particular HDR workflow. It was made with the help of **OpenAI Codex**. It integrates existing technology; it does not claim authorship of NVIDIA TrueHDR, KWin, Linux HDR or compositor filtering.
 
 The projects below deserve recognition for their own work and give readers alternatives to explore. Links do not imply endorsement, partnership, code reuse or permission to relicense their work. Related projects use different methods and are not all implementations of NVIDIA’s model. We make no claim to being first or unique.
 
