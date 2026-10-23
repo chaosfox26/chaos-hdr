@@ -1,5 +1,7 @@
 # ![Chaos HDR](docs/images/chaos-hdr-title.gif)
 
+**[Chaos HDR website](https://chaosfox26.github.io/chaos-hdr/)** · [Latest release](https://github.com/chaosfox26/chaos-hdr/releases/latest)
+
 ## 0.4.2 — overlay rendering fix
 
 A full-height, translucent Alt+Z sidebar with neon lettering, animated
