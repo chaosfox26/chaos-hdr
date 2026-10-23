@@ -29,7 +29,7 @@ on different hardware, displays, drivers or KWin versions.
 
 ## One-command installation
 
-The command below installs the [0.4.2 source release](https://github.com/chaosfox26/chaos-hdr/releases/tag/v0.4.2).
+The command below installs the [latest regular source release](https://github.com/chaosfox26/chaos-hdr/releases/latest).
 Fresh-system installation, new-login startup and a complete hosted-release
 upgrade remain unverified. Publication does not establish that acceptance.
 
@@ -41,8 +41,12 @@ downloaded source installer's SHA-256 before running it, and keeps temporary
 downloads inside the consolidated project folder.
 
 ```sh
-curl -fsSL https://github.com/chaosfox26/chaos-hdr/releases/download/v0.4.2/install.sh | bash
+curl -fsSL https://github.com/chaosfox26/chaos-hdr/releases/latest/download/install.sh | bash
 ```
+
+This URL stays the same between releases and excludes prereleases. The launcher
+from the selected release uses that release's exact installer URL and checksum,
+so a new release appearing during setup does not mix versions.
 
 This experimental source release has not yet passed a fresh-machine installation
 test. It expects a supported KDE Wayland session with working NVIDIA graphics and
@@ -55,7 +59,7 @@ bash Chaos-HDR-CachyOS.run
 
 It extracts reviewed source, reuses or creates the project-local dependency environment, obtains pinned NVIDIA components, builds the native effect and shortcut/controller helpers, and registers login startup. Existing picture profiles and app approvals are preserved. There are no game-folder copies or per-game launch flags.
 
-The [GitHub release](https://github.com/chaosfox26/chaos-hdr/releases/tag/v0.4.2) also provides source and installer downloads for inspection. Integrity checking is available with `bash Chaos-HDR-CachyOS.run --check`.
+The [latest GitHub release](https://github.com/chaosfox26/chaos-hdr/releases/latest) also provides source and installer downloads for inspection. Choose a specific release's assets when you need a fixed older version. Integrity checking is available with `bash Chaos-HDR-CachyOS.run --check`.
 
 ## Release acceptance
 

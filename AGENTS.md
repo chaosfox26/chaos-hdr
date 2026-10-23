@@ -30,6 +30,11 @@ unhosted or placeholder URL as working. Clearly identify supported systems and
 any necessary system authentication. A fresh supported-system end-to-end install
 must be validated before calling the public one-line workflow ready.
 
+Keep the public install command at the permanent GitHub URL
+`https://github.com/chaosfox26/chaos-hdr/releases/latest/download/install.sh`.
+Do not change it to a versioned URL during release bumps. Each release's
+downloaded launcher must still pin its own installer URL and checksum.
+
 # Release cleanliness and privacy
 
 Keep README.md as the public front page with working links to the documentation

@@ -12,7 +12,7 @@ rollback and GPU-resource cleanup. Matched local tests measured approximately
 0.27 ms of GPU processing at 1440p and 0.49 ms at 4K. See the [release notes](docs/releases/0.4.0.md)
 for results, limitations and the cold-rebuild tradeoff.
 
-**[Download the packaged installer](https://github.com/chaosfox26/chaos-hdr/releases/download/v0.4.2/Chaos-HDR-CachyOS.run)** · [0.4.2 release notes](docs/releases/0.4.2.md)
+**[Download the latest packaged installer](https://github.com/chaosfox26/chaos-hdr/releases/latest/download/Chaos-HDR-CachyOS.run)** · [0.4.2 release notes](docs/releases/0.4.2.md)
 
 0.4.2 fixes black rectangles replacing the sidebar's text and controls when
 an unsupported emoji font is selected or shared graphics state disrupts a font
@@ -45,7 +45,7 @@ Chaos HDR is my implementation of the workflow I wanted: launch an application n
 - **Install:** paste this one command into a terminal and press Enter:
 
 ```sh
-curl -fsSL https://github.com/chaosfox26/chaos-hdr/releases/download/v0.4.2/install.sh | bash
+curl -fsSL https://github.com/chaosfox26/chaos-hdr/releases/latest/download/install.sh | bash
 ```
 
 - **Supported target:** CachyOS/Arch, KDE Plasma Wayland, compatible NVIDIA RTX GPU/driver, HDR enabled in KDE. Fresh-machine installation is not yet verified.
@@ -53,7 +53,7 @@ curl -fsSL https://github.com/chaosfox26/chaos-hdr/releases/download/v0.4.2/inst
 - **Uninstall:** `~/.local/bin/chaos-hdr-uninstall`
 - **Delete everything as well:** `~/.local/bin/chaos-hdr-uninstall --purge` — permanently deletes the complete project and saved settings.
 
-The public command downloads and runs setup directly from GitHub, then handles dependencies, the native build and login startup on the current CachyOS/Arch KDE Wayland target. Users do not need to save an installer manually, change executable permissions or run extra setup commands. See [installation and removal](docs/installation.md) for requirements and details.
+The same command always follows the latest regular GitHub release. Its launcher pins the matching installer and verifies its checksum before setup. Setup handles dependencies, the native build and login startup on the current CachyOS/Arch KDE Wayland target. Users do not need to save an installer manually, change executable permissions or run extra setup commands. See [installation and removal](docs/installation.md) for requirements and details.
 
 ## What it does
 
