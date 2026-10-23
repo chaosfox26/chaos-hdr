@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="docs/images/chaos-hdr-title.gif" alt="Chaos HDR" width="522">
+  <img src="docs/images/chaos-hdr-title.svg" alt="Chaos HDR" width="522" height="108">
 </h1>
 
 <p align="center">

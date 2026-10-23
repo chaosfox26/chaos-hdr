@@ -14,6 +14,19 @@ Chaos HDR's original code and documentation are licensed under [GNU GPL version 
 - Keep explanatory first-party code comments in the [development reference](../Chaos%20HDR%20development.md); retain upstream notices and tooling directives.
 - No first-party telemetry, account scanning or production frame/input recording.
 
+## Repository artwork
+
+The README wordmark is a self-contained SVG using outlines from the bundled
+Audiowide font. Its letter faces stay sharp above a separate neon glow, and its
+3.4-second glitch loop follows the overlay's visual treatment. It needs no remote
+font or script and becomes still when the viewer requests reduced motion.
+Keep the bundled font's OFL notice and [font provenance](../vendor/fonts/UPSTREAM.json).
+The interface screenshot remains an unaltered record of the isolated test desktop.
+
+GitHub's social preview is configured separately from the README. Verify the
+public page's Open Graph image and description after changing it; a messaging
+service may continue to show a previously cached card until it refreshes.
+
 ## Build and checks
 
 Normal source setup uses `bash bootstrap.sh`; it obtains dependencies, builds production targets and registers the integration. An already-provisioned tree can rebuild production with `.venv/bin/python prepare_desktop.py`. Reinstall registrations with `.venv/bin/python install.py` when needed.
