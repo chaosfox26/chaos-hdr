@@ -1,4 +1,4 @@
-DESCRIPTION = 'Create a Chaos HDR source installer with optional personal picture profiles.\n\nDependencies are fetched by bootstrap from their publishers, not redistributed.\nNo game files, account data, screenshots, environment or build caches are packed.\n'
+DESCRIPTION = 'Create a Chaos HDR source installer with optional personal picture profiles.\n\nDependencies are fetched by bootstrap from their publishers, not redistributed.\nNo game files, account data, personal captures, environment or build caches are packed.\n'
 import argparse
 import hashlib
 import gzip
@@ -57,6 +57,7 @@ SOURCE_FILES = (
     '.gitignore','AGENTS.md','CMakeLists.txt','README.md','Chaos HDR development.md','THIRD_PARTY_NOTICES.rst',
     'docs/installation.md','docs/user-guide.md','docs/architecture.md','docs/compatibility.md',
     'docs/performance.md','docs/privacy.md','docs/troubleshooting.md','docs/contributing.md','docs/credits.md','docs/releases/0.2.0.md','docs/releases/0.4.0.md','docs/releases/0.4.1.md',
+    'docs/images/chaos-hdr-sidebar.png','docs/images/chaos-hdr-title.gif',
     'bootstrap.sh','uninstall.sh','github-install.sh.in','desktop.py','desktop_probe.py','displays.py','install.py',
     'package_installer.py','prepare_desktop.py','project.py','sdk.py','test_desktop_watch.py','test_desktop_version.py','test_updates.py','test_install.py','test_package_installer.py','test_deployment.py','profile.example.json',
     'local_setup.py','deployment.py','updates.py','release.json','native/update_dialog.hpp',

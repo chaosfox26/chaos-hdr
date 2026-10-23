@@ -1,4 +1,4 @@
-# Chaos HDR
+# ![Chaos HDR](docs/images/chaos-hdr-title.gif)
 
 ## 0.4.1 — packaged installer
 
@@ -17,6 +17,14 @@ for results, limitations and the cold-rebuild tradeoff.
 0.4.1 publishes the 0.4.0 implementation as a regular GitHub release with matching
 installer and updater metadata. HDR processing and the overlay are unchanged.
 Fresh-system installation and new-login acceptance remain unverified.
+
+## Current interface
+
+<img src="docs/images/chaos-hdr-sidebar.png" alt="Chaos HDR sidebar with neon title, lightning background, independent HDR and sharpening switches, sliders and a hover tooltip" width="420">
+
+The current sidebar, captured against black in an isolated test desktop using
+a synthetic application. Alt+Z slides it in and out; the live lightning and
+title effects are animated.
 
 ## About Chaos HDR
 

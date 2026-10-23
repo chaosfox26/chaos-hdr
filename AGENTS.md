@@ -57,8 +57,10 @@ owner-private. Installation dependency downloads are distinct from runtime
 telemetry; do not make unverified claims about proprietary vendor internals.
 
 Public packaging is the default, uses a reviewed file allowlist, and excludes
-personal settings, captures, logs, private validation, archives, compiled
+personal settings and captures, logs, private validation, archives, compiled
 binaries and installed dependencies. Never publish the entire project folder.
+A documentation screenshot must be explicitly allowlisted and visually reviewed
+for private content and image metadata before publication.
 A clean source-history and license/provenance review is required before release.
 Never put private names, email addresses or the private exclusion list into
 .gitignore or other tracked files. Ignore rules use generic file paths only;
