@@ -29,10 +29,10 @@ on different hardware, displays, drivers or KWin versions.
 
 ## One-command installation
 
-The command below installs the published experimental 0.1.0 release. The 0.2.0
-implementation is merged, but its locally prepared installer is not published.
-Generating that candidate does not change the existing download or establish
-that the public one-command workflow is ready.
+The command below installs the published experimental 0.1.0 release.
+[Experimental 0.2.0 source and installer assets are also published](https://github.com/chaosfox26/chaos-hdr/releases/tag/v0.2.0).
+Publication does not establish fresh-system acceptance. The front-page command
+remains pinned to 0.1.0 pending that test and does not install 0.2.0.
 
 The primary installation workflow is to copy one command from the GitHub front
 page, paste it into a terminal and press Enter. It downloads the release and runs
@@ -107,7 +107,7 @@ The canonical folder is `~/Documents/ChatGPT/CachyOS/RTX HDR experimental`. Sour
 
 After a KWin update, run `bash bootstrap.sh` from the existing project folder to
 rebuild and reinstall that folder's source against the matching version. This
-does not download the unpublished 0.2.0 changes into a 0.1.0 installation. Future
+does not download the 0.2.0 changes into a 0.1.0 installation. Future
 API changes may require updated source as well as a rebuild. Rebuilding preserves
 saved profiles and app approvals. If running KWin differs from the installed version, log out/in
 first. When they already match, no additional desktop restart is needed. A blocked

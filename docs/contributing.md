@@ -50,9 +50,10 @@ project Python environment to run that copy's packager. It writes to the copy's
 mixed directory containing old launchers, personal backups or unrelated files.
 
 Pass `--public --installer-url` with the exact versioned HTTPS GitHub release URL
-for `Chaos-HDR-CachyOS.run`. For a local 0.2.0 candidate, the intended path is
+for `Chaos-HDR-CachyOS.run`. The published 0.2.0 installer uses
 `https://github.com/chaosfox26/chaos-hdr/releases/download/v0.2.0/Chaos-HDR-CachyOS.run`.
-This is packaging metadata for a future asset, not a working download URL today.
+Use a new version for later source changes; do not overwrite published assets.
+Generating a package does not publish it or establish fresh-system acceptance.
 Confirm its repository and tag match the intended release. Packaging generates
 `install.sh` containing that URL and the current installer's SHA-256, alongside
 the source archive, `.run` and dedicated `.sha256` file.

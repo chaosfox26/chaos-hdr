@@ -28,9 +28,10 @@ API changes may still require source changes; a rebuild cannot guarantee every
 future desktop version will work. If running and installed KWin differ, sign
 out and back in before rebuilding.
 
-**Publication status:** the 0.2.0 implementation is merged; release verification
-and separate publication authorization are still required. The download command
-below remains pinned to the published 0.1.0 release and does not install 0.2.0.
+**Publication status:** [0.2.0 is published as an experimental source release](https://github.com/chaosfox26/chaos-hdr/releases/tag/v0.2.0).
+Its source installer, launcher and checksums are available on the release page.
+The download command below remains pinned to 0.1.0 pending the documented
+fresh-system acceptance test; it does not install 0.2.0.
 Local automated tests and a production rebuild on KWin 6.8.1 passed. Fresh-system
 installation, startup after a new login, real-application HDR conversion and
 installation of a newer hosted release remain unverified.
