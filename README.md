@@ -1,46 +1,26 @@
-# ![Chaos HDR](docs/images/chaos-hdr-title.gif)
+<h1 align="center">
+  <img src="docs/images/chaos-hdr-title.gif" alt="Chaos HDR" width="522">
+</h1>
 
-**[Chaos HDR website](https://chaosfox26.github.io/chaos-hdr/)** · [Latest release](https://github.com/chaosfox26/chaos-hdr/releases/latest)
+<p align="center">
+  <strong>Low-latency NVIDIA HDR and sharpening for KDE Plasma Wayland.</strong><br>
+  Neon controls. Your picture settings. No game injection.
+</p>
 
-## 0.4.2 — overlay rendering fix
+<p align="center">
+  <a href="https://github.com/chaosfox26/chaos-hdr/releases/latest/download/Chaos-HDR-CachyOS.run"><img src="docs/images/download-installer.svg" alt="Download latest installer" width="230" height="48"></a>
+  <a href="docs/user-guide.md"><img src="docs/images/user-guide.svg" alt="Read the user guide" width="154" height="48"></a>
+</p>
 
-A full-height, translucent Alt+Z sidebar with neon lettering, animated
-lightning, smooth transitions and independent HDR and sharpening controls.
-The exposed desktop stays usable, and KDE screenshots can include the open
-sidebar. Optional reduced motion and accessible native controls are under **More**.
+<p align="center">
+  <a href="#start-here">One-command install</a> ·
+  <a href="#current-interface">Interface</a> ·
+  <a href="#tested-gpu-processing-time">Performance</a> ·
+  <a href="https://github.com/chaosfox26/chaos-hdr/releases/latest">Release notes</a> ·
+  <a href="https://chaosfox26.github.io/chaos-hdr/">Website</a>
+</p>
 
-Includes the 0.4.0 improvements to display tracking, settings persistence, update
-rollback and GPU-resource cleanup. Matched local tests measured approximately
-0.27 ms of GPU processing at 1440p and 0.49 ms at 4K. See the [release notes](docs/releases/0.4.0.md)
-for results, limitations and the cold-rebuild tradeoff.
-
-**[Download the latest packaged installer](https://github.com/chaosfox26/chaos-hdr/releases/latest/download/Chaos-HDR-CachyOS.run)** · [0.4.2 release notes](docs/releases/0.4.2.md)
-
-0.4.2 fixes black rectangles replacing the sidebar's text and controls when
-an unsupported emoji font is selected or shared graphics state disrupts a font
-upload. Font rebuilding now preserves the working fonts if a fallback fails.
-The HDR processing path is unchanged.
-Fresh-system installation and new-login acceptance remain unverified.
-
-## Current interface
-
-<img src="docs/images/chaos-hdr-sidebar.png" alt="Chaos HDR sidebar with neon title, lightning background, independent HDR and sharpening switches, sliders and a hover tooltip" width="420">
-
-The current sidebar, captured against black in an isolated test desktop using
-a synthetic application. Alt+Z slides it in and out; the live lightning and
-title effects are animated.
-
-## About Chaos HDR
-
-Experimental NVIDIA TrueHDR and sharpening for selected SDR application windows on KDE Wayland.
-
-**Created by Chaos Fox with the help of OpenAI Codex.**
-
-Chaos HDR is my implementation of the workflow I wanted: launch an application normally, open Alt+Z, explicitly allow its window, and adjust HDR without changing its files. It builds on NVIDIA’s engine and the Linux graphics community’s work. Other projects explore related goals using different methods; this project does not claim to be the first or to replace them.
-
-**License:** Chaos HDR's original code and documentation are licensed under [GNU GPL version 2 only](LICENSE) (`GPL-2.0-only`), copyright Chaos Fox. Third-party components retain their own licenses; this grant does not relicense NVIDIA's engine, SDK or other dependencies.
-
-**Experimental source release:** fresh-system installation validation is still pending. The KWin/NGX combined-binary licensing question remains unresolved; the source installer downloads dependencies upstream and builds locally. This release does not claim permission to redistribute the combined binary. See [third-party notices](THIRD_PARTY_NOTICES.rst). No universal compatibility or performance guarantee is implied.
+<p align="center"><img src="docs/images/neon-divider.svg" alt="" width="900" height="18"></p>
 
 ## Start here
 
@@ -49,7 +29,7 @@ Other distributions and desktop environments, including **GNOME**, have not
 been tested for installation or runtime use. The current effect requires KDE/KWin;
 compatibility with other desktops is not established.
 
-- **Install:** paste this one command into a terminal and press Enter:
+**Install the latest release** by pasting this command into a terminal:
 
 ```sh
 curl -fsSL https://github.com/chaosfox26/chaos-hdr/releases/latest/download/install.sh | bash
@@ -62,6 +42,18 @@ curl -fsSL https://github.com/chaosfox26/chaos-hdr/releases/latest/download/inst
 
 The same command always follows the latest regular GitHub release. Its launcher pins the matching installer and verifies its checksum before setup. Setup handles dependencies, the native build and login startup on the current CachyOS/Arch KDE Wayland target. Users do not need to save an installer manually, change executable permissions or run extra setup commands. See [installation and removal](docs/installation.md) for requirements and details.
 
+<p align="center"><img src="docs/images/neon-divider.svg" alt="" width="900" height="18"></p>
+
+## Current interface
+
+<p align="center">
+<img src="docs/images/chaos-hdr-sidebar.png" alt="Chaos HDR sidebar with neon title, lightning background, independent HDR and sharpening switches, sliders and a hover tooltip" width="420">
+</p>
+
+The current sidebar, captured against black in an isolated test desktop using
+a synthetic application. Alt+Z slides it in and out; the live lightning and
+title effects are animated.
+
 ## What it does
 
 - NVIDIA TrueHDR conversion with debanding, plus adjustable sharpening.
@@ -71,6 +63,8 @@ The same command always follows the latest regular GitHub release. Its launcher 
 - Event-driven idle operation and a watchdog only while a target has HDR enabled.
 - Daily GitHub release checks, update notifications and user-initiated update/repair controls.
 - No first-party telemetry, account inspection or normal frame recording.
+
+<p align="center"><img src="docs/images/neon-divider.svg" alt="" width="900" height="18"></p>
 
 ## Tested GPU processing time
 
@@ -92,6 +86,28 @@ or a guarantee for every GPU and game. See [performance and testing](docs/perfor
 for measurement scope and the [0.4.0 results](docs/releases/0.4.0.md) for the
 baseline comparison and recovery tradeoffs.
 
+## 0.4.2 — overlay rendering fix
+
+A full-height, translucent Alt+Z sidebar with neon lettering, animated
+lightning, smooth transitions and independent HDR and sharpening controls.
+The exposed desktop stays usable, and KDE screenshots can include the open
+sidebar. Optional reduced motion and accessible native controls are under **More**.
+
+Includes the 0.4.0 improvements to display tracking, settings persistence, update
+rollback and GPU-resource cleanup. Matched local tests measured approximately
+0.27 ms of GPU processing at 1440p and 0.49 ms at 4K. See the [release notes](docs/releases/0.4.0.md)
+for results, limitations and the cold-rebuild tradeoff.
+
+**[Download the latest packaged installer](https://github.com/chaosfox26/chaos-hdr/releases/latest/download/Chaos-HDR-CachyOS.run)** · [0.4.2 release notes](docs/releases/0.4.2.md)
+
+0.4.2 fixes black rectangles replacing the sidebar's text and controls when
+an unsupported emoji font is selected or shared graphics state disrupts a font
+upload. Font rebuilding now preserves the working fonts if a fallback fails.
+The HDR processing path is unchanged.
+Fresh-system installation and new-login acceptance remain unverified.
+
+<p align="center"><img src="docs/images/neon-divider.svg" alt="" width="900" height="18"></p>
+
 ## Documentation
 
 | Page | What you will find |
@@ -107,6 +123,18 @@ baseline comparison and recovery tradeoffs.
 | [Credits and related projects](docs/credits.md) | Dependencies, reference material and alternatives using different methods |
 | [Development reference](Chaos%20HDR%20development.md) | Detailed component notes and explanations moved from source comments |
 | [Third-party notices](THIRD_PARTY_NOTICES.rst) | Upstream terms and unresolved licensing boundaries |
+
+## About Chaos HDR
+
+Experimental NVIDIA TrueHDR and sharpening for selected SDR application windows on KDE Wayland.
+
+**Created by Chaos Fox with the help of OpenAI Codex.**
+
+Chaos HDR is my implementation of the workflow I wanted: launch an application normally, open Alt+Z, explicitly allow its window, and adjust HDR without changing its files. It builds on NVIDIA’s engine and the Linux graphics community’s work. Other projects explore related goals using different methods; this project does not claim to be the first or to replace them.
+
+**License:** Chaos HDR's original code and documentation are licensed under [GNU GPL version 2 only](LICENSE) (`GPL-2.0-only`), copyright Chaos Fox. Third-party components retain their own licenses; this grant does not relicense NVIDIA's engine, SDK or other dependencies.
+
+**Experimental source release:** fresh-system installation validation is still pending. The KWin/NGX combined-binary licensing question remains unresolved; the source installer downloads dependencies upstream and builds locally. This release does not claim permission to redistribute the combined binary. See [third-party notices](THIRD_PARTY_NOTICES.rst). No universal compatibility or performance guarantee is implied.
 
 ## Community context
 
