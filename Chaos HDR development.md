@@ -1720,3 +1720,39 @@ hang recovery claims require testing on a disposable system with a separate GPU.
 Contracts: [Vulkan fence status](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetFenceStatus.html),
 [Vulkan device loss](https://docs.vulkan.org/spec/latest/chapters/devsandqueues.html#devsandqueues-lost-device),
 and [OpenGL 4.6 sync objects, section 4.1](https://registry.khronos.org/OpenGL/specs/gl/glspec46.core.pdf).
+
+## Overlay font upload state
+
+The font atlas also supplies the white texel used by ImGui's solid controls.
+An incomplete atlas therefore turns both lettering and controls into black
+blocks while the separately uploaded lightning remains visible. The vendored
+backend isolates the pixel-unpack buffer on initial device creation, but its
+standalone font rebuild does not. A bound compositor unpack buffer makes the
+CPU atlas pointer an invalid buffer offset during that rebuild.
+
+`overlay_gl.hpp` isolates the unpack buffer, alignment, row length and row/pixel
+skips only when the font texture is absent, then restores the caller's state.
+Ordinary frames add one texture-ID check; closed overlays do not reach this
+path. HDR processing, GPU synchronization and vendor sources are unchanged.
+
+The development-only `truehdr-font-texture-test` accepts the project asset
+root, plus an optional `desktop` argument for OpenGL instead of OpenGL ES.
+Run it against an isolated Wayland compositor. It binds a small unpack buffer
+and nondefault pixel layout before initial upload and seven rebuilds, including
+multilingual fallback. It compares every uploaded atlas byte with the CPU
+source, checks state restoration and confirms that ordinary frames retain the
+texture. Readback exists only in this test executable.
+
+Live diagnosis also found a separate failure before upload: a color-only emoji
+font selected as scalable by Fontconfig made the stb TrueType atlas builder
+fail, leaving its dimensions zero. Scalable does not imply outline glyphs.
+Fallback now requests and verifies outlines in supported TrueType/CFF formats,
+skips unsupported collection indices, and builds before replacing the GPU
+texture. If a new source fails to build, its owned data is released and the
+previous source set is rebuilt. Unsupported characters retain the missing-glyph
+fallback instead of blanking the whole sidebar. The regression includes emoji
+and verifies that supported international glyphs survive subsequent rebuilds.
+
+The combined clipboard/control check refreshes its layout snapshot after a
+profile change; otherwise its cached slider coordinates can target a different
+control once the profile section changes height.

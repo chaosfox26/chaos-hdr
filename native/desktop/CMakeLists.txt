@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(truehdr_desktop VERSION 0.4.1 LANGUAGES CXX)
+project(truehdr_desktop VERSION 0.4.2 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_AUTOMOC ON)
 option(TRUEHDR_DEVELOPMENT "Enable private fixtures and frame readback diagnostics" OFF)
@@ -61,6 +61,13 @@ set_target_properties(truehdr_bootstrap PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${C
 file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/bootstrap/qmldir" CONTENT "module TrueHDRBootstrap\nplugin truehdr_bootstrap\n")
 
 if(TRUEHDR_DEVELOPMENT)
+    add_executable(truehdr-font-texture-test font_texture_test.cpp
+        ../../vendor/imgui/imgui.cpp ../../vendor/imgui/imgui_draw.cpp
+        ../../vendor/imgui/imgui_widgets.cpp ../../vendor/imgui/imgui_tables.cpp
+        ../../vendor/imgui/backends/imgui_impl_opengl3.cpp)
+    target_include_directories(truehdr-font-texture-test PRIVATE ../../vendor/imgui)
+    target_compile_definitions(truehdr-font-texture-test PRIVATE IMGUI_USE_WCHAR32)
+    target_link_libraries(truehdr-font-texture-test PRIVATE Qt6::Gui PkgConfig::EPOXY PkgConfig::FONTCONFIG)
     find_package(LayerShellQt REQUIRED)
     target_link_libraries(truehdr-desktop-window-test PRIVATE LayerShellQt::Interface)
     target_compile_definitions(truehdr-desktop-window-test PRIVATE TRUEHDR_DEVELOPMENT)

@@ -24,6 +24,7 @@
 #include "imgui_internal.h"
 #include "overlay_motion.hpp"
 #include "overlay_style.hpp"
+#include "overlay_gl.hpp"
 #include "font_fallback.hpp"
 #include "backends/imgui_impl_opengl3.h"
 #include <QTimer>
@@ -896,9 +897,9 @@ public:
         for(auto* window:effects->stackingOrder())if(applicationWindow(window))text+=' '+window->caption();
         if(text!=glyphText&&!glyphPending){glyphPending=true;QTimer::singleShot(0,this,[this,text]{
             glyphPending=false;glyphText=text;if(!ui)return;effects->makeOpenGLContextCurrent();ImGui::SetCurrentContext(ui);
-            if(fontFallback.add(text,uiFonts)){ImGui_ImplOpenGL3_DestroyFontsTexture();ImGui::GetIO().Fonts->Build();repaintOverlay();}
+            if(fontFallback.add(text,uiFonts)){ImGui_ImplOpenGL3_DestroyFontsTexture();repaintOverlay();}
         });}
-        ImGui_ImplOpenGL3_NewFrame();ImGui::NewFrame();controls();
+        chaos_ui::beginOpenGLFrame();ImGui::NewFrame();controls();
         inputRegion={};
         if(visible)for(auto* window:ImGui::GetCurrentContext()->Windows){
             if(!window->Active||window->Hidden||(window->Flags&ImGuiWindowFlags_NoMouseInputs))continue;

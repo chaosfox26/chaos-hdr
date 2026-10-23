@@ -1,21 +1,23 @@
 # ![Chaos HDR](docs/images/chaos-hdr-title.gif)
 
-## 0.4.1 — packaged installer
+## 0.4.2 — overlay rendering fix
 
 A full-height, translucent Alt+Z sidebar with neon lettering, animated
 lightning, smooth transitions and independent HDR and sharpening controls.
 The exposed desktop stays usable, and KDE screenshots can include the open
 sidebar. Optional reduced motion and accessible native controls are under **More**.
 
-This release also improves display tracking, settings persistence, update
+Includes the 0.4.0 improvements to display tracking, settings persistence, update
 rollback and GPU-resource cleanup. Matched local tests measured approximately
 0.27 ms of GPU processing at 1440p and 0.49 ms at 4K. See the [release notes](docs/releases/0.4.0.md)
 for results, limitations and the cold-rebuild tradeoff.
 
-**[Download the packaged installer](https://github.com/chaosfox26/chaos-hdr/releases/download/v0.4.1/Chaos-HDR-CachyOS.run)** · [0.4.1 release notes](docs/releases/0.4.1.md)
+**[Download the packaged installer](https://github.com/chaosfox26/chaos-hdr/releases/download/v0.4.2/Chaos-HDR-CachyOS.run)** · [0.4.2 release notes](docs/releases/0.4.2.md)
 
-0.4.1 publishes the 0.4.0 implementation as a regular GitHub release with matching
-installer and updater metadata. HDR processing and the overlay are unchanged.
+0.4.2 fixes black rectangles replacing the sidebar's text and controls when
+an unsupported emoji font is selected or shared graphics state disrupts a font
+upload. Font rebuilding now preserves the working fonts if a fallback fails.
+The HDR processing path is unchanged.
 Fresh-system installation and new-login acceptance remain unverified.
 
 ## Current interface
@@ -43,7 +45,7 @@ Chaos HDR is my implementation of the workflow I wanted: launch an application n
 - **Install:** paste this one command into a terminal and press Enter:
 
 ```sh
-curl -fsSL https://github.com/chaosfox26/chaos-hdr/releases/download/v0.4.1/install.sh | bash
+curl -fsSL https://github.com/chaosfox26/chaos-hdr/releases/download/v0.4.2/install.sh | bash
 ```
 
 - **Supported target:** CachyOS/Arch, KDE Plasma Wayland, compatible NVIDIA RTX GPU/driver, HDR enabled in KDE. Fresh-machine installation is not yet verified.
@@ -67,8 +69,9 @@ The public command downloads and runs setup directly from GitHub, then handles d
 
 With **HDR and sharpening enabled**, the tested implementation measured the
 following median GPU times. These local synthetic-scene tests recorded about
-300 completed frames per mode on October 23, 2026. The 0.4.1 runtime is unchanged
-from the tested 0.4.0 implementation.
+300 completed frames per mode on October 23, 2026 using 0.4.0. The 0.4.2 font
+fix leaves the HDR processing and shaders unchanged; these timings have not
+been remeasured for 0.4.2.
 
 | Resolution | Processing, sidebar closed | Processing, sidebar open | Overlay drawing, sidebar open |
 |---|---:|---:|---:|

@@ -548,7 +548,8 @@ def run():
             os.kill(pid,signal.SIGTERM);time.sleep(.3)
             ui=json.loads(status.read_text())
         if 'panel_progress' in ui.get('input',{}):
-            time.sleep(.35)
+            time.sleep(1.2)
+            ui=json.loads(status.read_text())
             call('/TrueHDR','org.truehdr.Desktop.testCaptureControls')
             for _ in range(12):
                 ui=json.loads(status.read_text());rect=next(r for r in ui['controls'] if r['key']=='sharpen_intensity')
