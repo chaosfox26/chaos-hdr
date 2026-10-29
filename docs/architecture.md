@@ -107,14 +107,19 @@ when it owns the operation lock.
 The active sidebar allocates a texture covering its controls, popups and cursor,
 with damage bounded to that part of its output. Direct DMA-BUF processing does
 not allocate the diagnostic capture texture. Unsuitable alpha surfaces are left
-unchanged. The preceding HDR job is checked without a CPU wait before reusing
-its command resources. The submitted producer fence is imported into the
-existing Vulkan semaphore wait; a pending producer is not rejected by a separate
-CPU poll. If the preceding HDR job is unfinished, the last valid HDR output is
-redrawn with its original color interpretation. OpenGL releases that output only
-before the next conversion, after its final read. Before the first valid result,
-the ordinary window path remains available. This retains one conversion job and
-one output image, with no additional frame queue, copy or processing pass.
+unchanged. Before reusing command resources, the effect checks the preceding
+HDR job. If unfinished, it waits on that job's fence for up to 100 ms. Successful
+processing draws convert the submitted input without deliberately redrawing an
+older HDR result. A timeout pauses processing until explicit retry. This bounded
+CPU wait can still stall the compositor under load; it is not an asynchronous
+or zero-wait design.
+
+The submitted producer fence is imported into the existing Vulkan semaphore
+wait, without a duplicate CPU producer-fence poll. OpenGL releases direct output
+ownership after each draw. The route retains one conversion job and one output
+image, with no additional frame queue, copy or processing pass. Unsupported
+inputs, startup and paused/error states can use the ordinary window path; normal
+readiness handling does not switch to SDR on every pending job.
 
 KWin retains presentation and VRR policy control. The effect does not override
 refresh timing, force VRR or add a frame pacing timer. Development presentation

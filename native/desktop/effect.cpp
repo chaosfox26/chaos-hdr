@@ -92,7 +92,7 @@ class TrueHDRDesktop : public Effect {
     QJsonObject bufferAudit;
     GraphicsBufferRef inFlightBuffer;
     std::shared_ptr<SyncReleasePoint> inFlightRelease;
-    bool directActive=false,directDisabled=false,preferDirect=true,outputValid=false,outputHdr=false;
+    bool directActive=false,directDisabled=false,preferDirect=true;
     QString directFallback,processingError;QByteArray failedDescriptor;QMetaObject::Connection damageConnection;
     std::shared_ptr<desktop_metrics::State> presentation;
     QPointer<SurfaceInterface> observedSurface;
@@ -293,7 +293,7 @@ class TrueHDRDesktop : public Effect {
         }else if(retireAge.elapsed()>=1000)abandonGpu();
     }
     void release(){
-        queueWatch.stop();inputFbo.reset();source.reset();output.reset();dimensions={};directActive=false;outputValid=false;
+        queueWatch.stop();inputFbo.reset();source.reset();output.reset();dimensions={};directActive=false;
         if(gpu){
             retiredGpu=std::make_unique<RetiredGPU>(RetiredGPU{std::move(gpu),std::move(inFlightBuffer),std::move(inFlightRelease)});
             retireAge.start();pollRetirement();if(retiredGpu)retireTimer.start(20);
@@ -771,19 +771,30 @@ public:
                 if(!direct){inputFbo=std::make_unique<GLFramebuffer>(source.get());
                     if(!inputFbo->valid())throw std::runtime_error("Desktop input framebuffer is invalid");}
             }
-            bool process=gpu->ready();
-            if(!process){if(!queueWatch.isActive())queueWatch.start(1000);}else if(queueWatch.isActive())queueWatch.stop();
+            const auto convertStarted=development&&frameTraceEnabled?desktop_metrics::now():0;
+            if (!gpu->awaitReady()) {
+                error = "HDR processing paused: the GPU did not finish within 100 ms. "
+                        "Use Retry processing to resume.";
+                processingError = error;
+                failedDescriptor = descriptor();
+                directFallback = error;
+                directDisabled = true;
+                failed = true;
+                retryTimer.stop();
+                release();
+                updateActivity();
+                status("error");
+                return effects->drawWindow(targetBuffer, viewport, window, mask, region, data);
+            }
+            if(queueWatch.isActive())queueWatch.stop();
             DesktopGPU::DmaInput input;
-            if(direct&&process){
+            if(direct){
                 input.width=dma->width;input.height=dma->height;input.format=dma->format;input.planes=dma->planeCount;input.modifier=dma->modifier;input.pitch=dma->pitch;input.offset=dma->offset;input.acquireFd=surface->syncFd().get();
                 for(int n=0;n<dma->planeCount;++n)input.fd[n]=dma->fd[n].get();
             }
-            if(!process&&!outputValid)return effects->drawWindow(targetBuffer,viewport,window,mask,region,data);
-            if(process)gpu->setSettings(PictureSettings::from(config,displayPeak));
-            auto timing=process?beginTiming():nullptr;
-            const auto convertStarted=process&&development&&frameTraceEnabled?desktop_metrics::now():0;
-            if(direct&&process){
-                if(outputValid)gpu->releaseOutput();
+            gpu->setSettings(PictureSettings::from(config,displayPeak));
+            auto timing=beginTiming();
+            if(direct){
                 if(timing)glQueryCounterEXT(timing->queries[1],GL_TIMESTAMP_EXT);
                 try{
 #ifdef TRUEHDR_DEVELOPMENT
@@ -798,7 +809,7 @@ public:
 
 
                 if(error==processingError)error.clear();processingError.clear();retryCount=0;
-            }else if(process){
+            }else{
             RenderTarget inputTarget(inputFbo.get(),ColorDescription::sRGB);RenderViewport inputViewport(geometry,viewport.scale(),inputTarget,QPoint());
             GLFramebuffer::pushFramebuffer(inputFbo.get());glClearColor(0,0,0,1);glClear(GL_COLOR_BUFFER_BIT);
             WindowPaintData inputData;inputData.setOpacity(1);renderingInput=true;
@@ -808,10 +819,10 @@ public:
             if(timing)glQueryCounterEXT(timing->queries[1],GL_TIMESTAMP_EXT);
             gpu->convert(sharpening(),config["ignore_film_grain"].toInt()/100.f,timingEnabled,hdrProcessing());
             }
-            if(process){outputValid=true;outputHdr=hdrProcessing();}
-            const auto convertFinished=process&&development&&frameTraceEnabled?desktop_metrics::now():0;
+            const bool outputHdr=hdrProcessing();
+            const auto convertFinished=development&&frameTraceEnabled?desktop_metrics::now():0;
             if(timing)glQueryCounterEXT(timing->queries[2],GL_TIMESTAMP_EXT);
-            if(process&&timingEnabled){auto values=gpu->timings();gpuAudit["vulkan_prepare_ms"]=values.prepare;gpuAudit["vulkan_engine_ms"]=values.engine;gpuAudit["vulkan_total_ms"]=values.total;gpuAudit["vulkan_samples"]=double(values.samples);}
+            if(timingEnabled){auto values=gpu->timings();gpuAudit["vulkan_prepare_ms"]=values.prepare;gpuAudit["vulkan_engine_ms"]=values.engine;gpuAudit["vulkan_total_ms"]=values.total;gpuAudit["vulkan_samples"]=double(values.samples);}
             ShaderBinder binder(ShaderTrait::MapTexture|ShaderTrait::TransformColorspace|ShaderTrait::Modulate);
             auto shader=ShaderManager::instance()->getBoundShader();QMatrix4x4 mvp=viewport.projectionMatrix();
             mvp.translate(std::round(geometry.x()*viewport.scale()),std::round(geometry.y()*viewport.scale()));
@@ -846,10 +857,11 @@ public:
             output->render(clip,geometry.size()*viewport.scale(),clipped);
             if(clipped)glDisable(GL_SCISSOR_TEST);
             output->unbind();glDisable(GL_BLEND);
+            if(direct)gpu->releaseOutput();
             if(timing){glQueryCounterEXT(timing->queries[3],GL_TIMESTAMP_EXT);timing->pending=true;}
             const auto finished=development?std::chrono::steady_clock::now():std::chrono::steady_clock::time_point{};
-            if constexpr(development){if(process){++frames;cpuTotal+=std::chrono::duration<double,std::milli>(finished-start).count();}}
-            if(process&&development&&frameTraceEnabled&&frameCosts.size()<20000){const auto previous=gpu->timings();frameCosts.push_back({
+            if constexpr(development){++frames;cpuTotal+=std::chrono::duration<double,std::milli>(finished-start).count();}
+            if(development&&frameTraceEnabled&&frameCosts.size()<20000){const auto previous=gpu->timings();frameCosts.push_back({
                 std::chrono::duration_cast<std::chrono::nanoseconds>(start.time_since_epoch()).count(),
                 std::chrono::duration_cast<std::chrono::nanoseconds>(finished.time_since_epoch()).count(),
                 (convertFinished-convertStarted)/1e6,previous.lastPrepare,previous.lastEngine,previous.lastTotal,previous.samples});}

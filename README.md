@@ -71,7 +71,7 @@ title effects are animated.
 With **HDR and sharpening enabled**, the tested implementation measured the
 following median GPU times. These local synthetic-scene tests recorded about
 300 completed frames per mode on October 23, 2026 using 0.4.0. This table retains
-that historical baseline; it is not a fresh measurement of every 0.4.3 mode.
+that historical baseline; it is not a fresh measurement of every current release mode.
 
 | Resolution | Processing, sidebar closed | Processing, sidebar open | Overlay drawing, sidebar open |
 |---|---:|---:|---:|
@@ -91,23 +91,32 @@ with Vulkan validation enabled, both with the sidebar closed. Settings and test
 conditions differ between those runs and the historical table. The matched
 baseline comparisons showed no material regression. See the [0.4.3 results](docs/releases/0.4.3.md).
 
-## 0.4.3 — stable HDR frame handling
+## 0.4.4 — fresh HDR frames
 
 A full-height, translucent Alt+Z sidebar with neon lettering, animated
 lightning, smooth transitions and independent HDR and sharpening controls.
 The exposed desktop stays usable, and KDE screenshots can include the open
 sidebar. Optional reduced motion and accessible native controls are under **More**.
 
-Fixes brightness flicker caused by drawing the original SDR image during a
-temporary GPU readiness gap. Producer completion uses the existing GPU fence
-without a duplicate CPU poll. An unfinished HDR job retains the last valid HDR
-image until processing can resume. No additional frame queue, image copy or
-HDR pass is introduced; a repeated image can still delay visible new content.
+Removes 0.4.3's deliberate redraw of an older HDR result while a conversion is
+busy. Each successful processing draw converts the submitted input instead of
+selecting the previous output. Producer completion stays on the existing GPU
+semaphore path. The effect checks its preceding job and, only if still busy,
+waits up to 100 ms before reusing its resources. A timeout pauses processing
+until an explicit retry; it does not alternate between SDR and HDR each frame.
+There is no additional output queue, image copy, blending or HDR pass.
 
-**[Download the latest packaged installer](https://github.com/chaosfox26/chaos-hdr/releases/latest/download/Chaos-HDR-CachyOS.run)** · [0.4.3 release notes](docs/releases/0.4.3.md)
+Two recent gameplay captures kept median HDR GPU preparation-plus-processing
+near **0.271 ms**. The three-minute high-load capture recorded no presentation
+interval above 25 ms. These observations do not establish end-to-end input
+latency, guarantee hitch-free gameplay or replace a controlled HDR-on/off
+comparison. See the [0.4.4 results and limits](docs/releases/0.4.4.md).
 
-Preserves the 0.4.2 font-rendering correction, existing picture controls and
-GPU recovery safeguards. KWin retains VRR control; live presentation feedback
+**[Download the latest packaged installer](https://github.com/chaosfox26/chaos-hdr/releases/latest/download/Chaos-HDR-CachyOS.run)** · [0.4.4 release notes](docs/releases/0.4.4.md)
+
+Tested on **KWin 6.8.2** with KDE Plasma Wayland on an existing CachyOS
+installation. Preserves the 0.4.2 font-rendering correction, existing picture
+controls and GPU recovery safeguards. KWin retains VRR control; live presentation feedback
 confirmed Adaptive Sync with HDR on and off in the tested setup.
 Fresh-system installation and new-login acceptance remain unverified.
 

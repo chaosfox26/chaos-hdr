@@ -315,6 +315,14 @@ void DesktopGPU::setSettings(const PictureSettings& settings){impl->engine->setS
 
 bool DesktopGPU::supportsFormat(uint32_t format){return format==DRM_FORMAT_XRGB8888||format==DRM_FORMAT_ARGB8888||format==DRM_FORMAT_XBGR8888||format==DRM_FORMAT_ABGR8888;}
 bool DesktopGPU::ready()const{bool ready=impl->complete();if(impl->poisoned)throw std::runtime_error("HDR GPU completion failed");return ready;}
+bool DesktopGPU::awaitReady() const {
+    if (ready()) return true;
+    const auto result = vkWaitForFences(impl->device, 1, &impl->fence, VK_TRUE, 100'000'000);
+    if (result == VK_TIMEOUT) return false;
+    if (result != VK_SUCCESS) impl->poisoned = true;
+    check(result, "Wait for fresh HDR resources");
+    return true;
+}
 bool DesktopGPU::retirementReady(){return impl->retirementReady();}
 bool DesktopGPU::recoveryRequired(){return QCoreApplication::instance()&&QCoreApplication::instance()->property("chaosHdrGpuRecoveryRequired").toBool();}
 void DesktopGPU::quarantine(){if(auto app=QCoreApplication::instance())app->setProperty("chaosHdrGpuRecoveryRequired",true);}

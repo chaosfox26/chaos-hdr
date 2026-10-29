@@ -15,6 +15,7 @@ public:
     unsigned inputTexture() const;
     unsigned outputTexture() const;
     bool ready()const;
+    bool awaitReady() const;
     bool retirementReady();
     static bool recoveryRequired();
     static void quarantine();

@@ -46,7 +46,26 @@ Documentation and branding changes should not alter shader arithmetic, queue syn
 
 The 0.4.0 candidate removes profile polling from each processed frame, debounces settings persistence outside paint callbacks, and limits the overlay texture and repaint region to the sidebar and active popups. The accepted local 1440p GPU-processing baseline is approximately 0.27 ms. That is a regression reference on the tested system, not an end-to-end latency promise. Recheck both steady state and transitions after changing synchronization or resource lifetimes.
 
-The direct route checks its previous submission without a CPU wait before reusing its command resources. The producer fence is handled by the existing GPU semaphore wait, without a duplicate CPU readiness poll. A pending HDR job repeats the last valid HDR output rather than switching to SDR. That repeat can delay visible new content; unchanged GPU processing cost does not make it free. No extra conversion job, frame queue, image copy or GPU pass is introduced. Teardown retains resources while polling Vulkan completion and a retirement-only GL fence with zero timeout. An unresolved retirement disables processing for the compositor session and retains one context until exit. Software completion-failure tests are distinct from real device-loss or driver-hang tests; the latter require a disposable system with its own GPU.
+Since 0.4.4, successful processing draws no longer intentionally reuse an older
+HDR output. The direct route checks its previous submission and, if necessary,
+waits up to 100 ms before reusing its command resources. That CPU wait is real
+and must be measured separately from the roughly 0.27 ms GPU processing baseline.
+A timeout pauses processing until explicit retry. The producer fence remains a
+GPU semaphore dependency without a duplicate CPU readiness poll. No extra
+conversion job, frame queue, image copy or GPU pass is introduced.
+
+The [0.4.4 release measurements](releases/0.4.4.md) separate GPU work, CPU draw
+time, explicit resource waiting and compositor feedback. Long game-update gaps
+are not attributed to HDR conversion merely because HDR is enabled. Shader-cache
+writes alone do not establish a compilation-caused hitch. Temporary gameplay
+recorders and their numeric traces are excluded from the release; production
+builds have diagnostic timing disabled.
+
+Teardown retains resources while polling Vulkan completion and a retirement-only
+GL fence with zero timeout. An unresolved retirement disables processing for the
+compositor session and retains one context until exit. Software completion-failure
+tests are distinct from real device-loss or driver-hang tests; the latter require
+a disposable system with its own GPU.
 
 For matched synthetic comparisons, run `desktop_probe.py --gpu-input --benchmark` in separate baseline and candidate development roots. Set `CHAOS_HDR_TEST_WIDTH` and `CHAOS_HDR_TEST_HEIGHT` to the same dimensions; `CHAOS_HDR_BENCH_FULL=1` includes both independent modes and bypass. `CHAOS_HDR_BENCH_TRANSITIONS=1` adds repeated sidebar motion, effect toggles and forced GPU reinitialization. Keep other GPU jobs out of the comparison and reverse run order between resolutions.
 

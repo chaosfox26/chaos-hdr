@@ -1663,9 +1663,10 @@ text shaping and platform accessibility. Reduced motion retains the static brand
 and changes transitions to immediate visibility updates.
 
 Producer completion is synchronized by the existing imported GPU fence, without
-a separate CPU readiness poll. Direct submission checks its own prior fence
-without a CPU wait; a pending job retains the last valid HDR output rather than
-alternating with SDR. Initial GPU setup is completed asynchronously before the
+a separate CPU readiness poll. Since 0.4.4, direct submission checks its own prior fence and waits up to
+100 ms only when that preceding job is unfinished. A timeout pauses processing
+until explicit retry. Successful processing draws convert the submitted input
+instead of intentionally redrawing an older result. Initial GPU setup is completed asynchronously before the
 first converted frame. The completion-gated retirement described below preserves
 GPU/GL synchronization; deleting live resources merely to avoid a wait is unsafe.
 Actual driver-hang recovery is not claimed by the software fault checks.
@@ -1798,7 +1799,7 @@ times from this synthetic comparison, not game input-to-display latency or proof
 that every source of flicker is fixed. The user subsequently confirmed that the
 observed game flicker stopped with this correction.
 
-## Fresh producer frames without additional buffering
+## 0.4.3 historical producer synchronization
 
 The follow-up removes the duplicate producer-fence CPU poll. Vulkan already
 imports that fence and waits on it before accessing the submitted game image.
@@ -1843,3 +1844,25 @@ KWin presentation feedback reported Adaptive Sync in the user's current game
 setup with HDR both enabled and disabled. Both outputs retain Automatic VRR;
 no global refresh-policy override or KWin scheduling change is needed. Development
 presentation samples now retain the actual presentation mode for this check.
+
+
+## 0.4.4 fresh-frame processing
+
+The previous-output reuse branch was removed after high-load motion testing
+exposed visible repeats in 0.4.3. `DesktopGPU::awaitReady()` first uses the existing
+completion check, then waits on the preceding job's fence with a 100 ms bound
+only if still pending. Successful draws submit a conversion of the current input;
+no extra output queue, image copy or processing pass is added. Direct output
+ownership is released after each draw. Producer readiness remains synchronized
+through the existing imported GPU semaphore. A prior-job timeout disables the
+direct processing attempt until explicit retry instead of repeatedly alternating
+HDR and the unprocessed window. Unsupported inputs, initialization and error
+states can still use the normal window path.
+
+This is the simple single-job correction, not the experimental asynchronous
+resource prototype. The bounded CPU wait remains a possible source of compositor
+delay under load. GPU engine cost alone cannot establish total added latency.
+The production build keeps detailed timing, input fixtures and frame readback
+disabled. Temporary numeric measurement variants, recorders, sampling services
+and private traces stay outside the public source allowlist. See the
+[release measurements and limits](docs/releases/0.4.4.md).
